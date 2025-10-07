@@ -21,15 +21,26 @@ export function EmpresasSwitcher({ empresas, empresaAtual, empresaSelecionada, o
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size={"lg"}
+              variant={"outline"}
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                 <Building2 className="size-4" />
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{empresaAtual?.nome}</span>
-                <span className="truncate text-xs">{aplicarMascaraDocumento(empresaAtual?.cnpj ?? "")}</span>
-              </div>
+              {
+                !empresaSelecionada || empresaSelecionada === '' ? (
+                  <div className="grid flex-1 text-left text-sm leading-tight text-foreground">
+                    <span className="truncate font-medium">Selecione uma empresa</span>
+                    <span className="truncate text-xs">{"--"}</span>
+                  </div>
+                ) : (
+                  <div className="grid flex-1 text-left text-sm leading-tight text-foreground">
+                    <span className="truncate font-medium">{empresaAtual?.nome}</span>
+                    <span className="truncate text-xs">{aplicarMascaraDocumento(empresaAtual?.cnpj ?? "")}</span>
+                  </div>
+                )
+              }
+
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -40,6 +51,7 @@ export function EmpresasSwitcher({ empresas, empresaAtual, empresaSelecionada, o
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">Lista de empresas</DropdownMenuLabel>
+
             {empresas.map((empresa) => (
               <DropdownMenuItem
                 key={empresa.id}
