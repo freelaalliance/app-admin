@@ -42,7 +42,6 @@ export function LoginForm() {
       } else if (result && result.success) {
         // Sucesso - redireciona para o dashboard
         router.push('/')
-        router.refresh()
       }
     } catch (error) {
       console.error("Erro ao autenticar:", error)

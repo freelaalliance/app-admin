@@ -13,6 +13,7 @@ export async function loginAction(email: string, senha: string) {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // Importante: permite enviar/receber cookies
       body: JSON.stringify({ email, senha }),
     })
 
@@ -27,6 +28,8 @@ export async function loginAction(email: string, senha: string) {
         message: data.msg || 'Erro ao autenticar',
       }
     }
+
+    console.log('✅ Login OK')
 
     return {
       success: true,
