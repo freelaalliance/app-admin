@@ -19,27 +19,30 @@ export async function loginAction(email: string, senha: string) {
 
     console.log('📊 Status:', response.status)
 
-    if (!response.ok) {
-      console.error('❌ Login falhou:', response.status)
+    const data = await response.json()
+
+    if (!response.ok || !data.status) {
+      console.error('❌ Login falhou:', data.msg || 'Erro desconhecido')
       return {
         success: false,
-        message: response.status === 401 ? 'Email ou senha incorretos' : 'Erro no servidor',
+        message: data.msg || 'Erro ao autenticar',
       }
     }
 
-    // Pega o cookie da resposta
+    // Extrai o cookie sessionAdmin da resposta
     const setCookieHeader = response.headers.get('set-cookie')
     if (setCookieHeader) {
-      // Extrai o valor do cookie sessionUser
-      const sessionMatch = setCookieHeader.match(/sessionUser=([^;]+)/)
+      const sessionMatch = setCookieHeader.match(/sessionAdmin=([^;]+)/)
       if (sessionMatch) {
         const cookieStore = await cookies()
-        cookieStore.set('sessionUser', sessionMatch[1], {
-          httpOnly: true,
+        cookieStore.set('sessionAdmin', sessionMatch[1], {
+          httpOnly: false,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          maxAge: 60 * 60 * 24 * 7, // 7 dias
+          sameSite: 'strict',
+          maxAge: 60 * 60 * 8, // 8 horas (igual ao backend)
+          path: '/',
         })
+        console.log('🍪 Cookie sessionAdmin configurado')
       }
     }
 
@@ -59,12 +62,28 @@ export async function loginAction(email: string, senha: string) {
 
 export async function logoutAction() {
   try {
-    await fetch(`${API_BASE_URL}/admin/logout`, {
+    console.log('🚪 SERVER ACTION: Logout')
+
+    const response = await fetch(`${API_BASE_URL}/admin/logout`, {
       method: 'POST',
       credentials: 'include',
     })
-  } catch (error) {
-    console.error('Erro no logout:', error)
+
+    const data = await response.json()
+
+    if (response.ok && data.status) {
+      // Limpa o cookie sessionAdmin no frontend
+      const cookieStore = await cookies()
+      cookieStore.delete('sessionAdmin')
+      console.log('✅ Logout OK - Cookie removido')
+    } else {
+      console.error('❌ Logout falhou:', data.msg || 'Erro desconhecido')
+    }
+  } catch (error: any) {
+    console.error('❌ Erro no logout:', error.message)
+    // Mesmo com erro, limpa o cookie local
+    const cookieStore = await cookies()
+    cookieStore.delete('sessionAdmin')
   }
 
   redirect('/login')

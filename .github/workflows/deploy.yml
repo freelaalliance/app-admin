@@ -61,4 +61,4 @@ jobs:
             docker stop app-admin 
             docker rm app-admin 
             docker pull adrsilva01/works:alliance-app-admin 
-            docker run --name app-admin --restart=always -d -p${{vars.PORT_APP}}:${{vars.PORT_APP}} --env API_BASE_URL=${{vars.NEXT_PUBLIC_BASE_HOST}} --env NEXT_PUBLIC_API_URL=${{vars.NEXT_PUBLIC_BASE_HOST}} --env NODE_ENV=production adrsilva01/works:alliance-app-admin
+            docker run --name app-admin --restart=always -d -p${{vars.PORT_APP}}:3000 --env API_BASE_URL=${{vars.NEXT_PUBLIC_BASE_HOST}} --env NEXT_PUBLIC_API_URL=${{vars.NEXT_PUBLIC_BASE_HOST}} --env NODE_ENV=production adrsilva01/works:alliance-app-admin
