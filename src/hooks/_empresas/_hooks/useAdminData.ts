@@ -48,6 +48,9 @@ import type {
   FormularioEdicaoUsuarioType,
   UpdateUsuarioStatusData
 } from '../_types/usuarioTypes'
+import {
+  getDashboardStats,
+} from '../_api/dashboardApi'
 
 // Query Keys Factory
 export const adminKeys = {
@@ -64,6 +67,8 @@ export const adminKeys = {
   permissoesPerfil: (perfilId: string) => [...adminKeys.all, 'permissoesPerfil', perfilId] as const,
   usuarios: (empresaId: string) => [...adminKeys.all, 'usuarios', empresaId] as const,
   usuario: (id: string) => [...adminKeys.all, 'usuario', id] as const,
+  // Dashboard
+  dashboardStats: () => [...adminKeys.all, 'dashboardStats'] as const
 }
 
 // Empresas
@@ -386,5 +391,15 @@ export function useUpdateUsuarioSenha() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.all })
     },
+  })
+}
+
+// Dashboard
+export function useDashboardStats() {
+  return useQuery({
+    queryKey: adminKeys.dashboardStats(),
+    queryFn: () => getDashboardStats(),
+    staleTime: 2 * 60 * 1000, // 2 minutos
+    refetchInterval: 5 * 60 * 1000, // Atualiza a cada 5 minutos
   })
 }

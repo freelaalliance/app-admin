@@ -10,10 +10,12 @@ import { UsuarioType } from '@/hooks/_empresas/_types/usuarioTypes'
 
 interface DialogEdicaoUsuarioProps {
   dadosUsuario: UsuarioType
+  idEmpresa: string
 }
 
 export function DialogEdicaoUsuario({
   dadosUsuario,
+  idEmpresa,
 }: DialogEdicaoUsuarioProps) {
   return (
     <DialogContent>
@@ -21,7 +23,7 @@ export function DialogEdicaoUsuario({
         <DialogTitle>Edição de usuário</DialogTitle>
         <DialogDescription>Altera dados do usuário</DialogDescription>
       </DialogHeader>
-      <EditarUsuarioForm dadosUsuario={dadosUsuario} />
+      <EditarUsuarioForm dadosUsuario={dadosUsuario} idEmpresa={idEmpresa} />
     </DialogContent>
   )
 }

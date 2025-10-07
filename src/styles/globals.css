@@ -42,8 +42,8 @@
   --radius: 0.625rem;
   
   /* Sidebar com identidade Alliance */
-  --sidebar: oklch(0.97 0.01 106); /* Fundo claro da sidebar */
-  --sidebar-foreground: oklch(0.25 0.015 264);
+  --sidebar: oklch(0.484 0.194 22.043); /* Fundo claro da sidebar */
+  --sidebar-foreground: oklch(0.98 0.01 22.043);
   --sidebar-primary: oklch(0.484 0.194 22.043); /* Vermelho Alliance */
   --sidebar-primary-foreground: oklch(0.98 0.01 22.043);
   --sidebar-accent: oklch(0.92 0.015 22.043); /* Tom suave para hover */

@@ -1,22 +1,14 @@
-"use client"
+import { Suspense } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { PerfisContent } from "./_components/PerfisContent"
 
-import { useSearchParams } from "next/navigation";
-import { TabelaPerfil } from "./_components/tabela/perfis/tabela-perfil";
-import { usePerfisEmpresa } from "@/hooks/_empresas/_hooks/useAdminData";
+// Marca a página como dinâmica para evitar erros de pre-rendering com useSearchParams
+export const dynamic = 'force-dynamic'
 
 export default function PagePerfisEmpresa() {
-  const searchParams = useSearchParams()
-  const empresaIdParam = searchParams.get('empresa')
-
-  const { data, isFetching } = usePerfisEmpresa(empresaIdParam ?? '')
-
   return (
-    <div className="grid space-y-6 p-6">
-      <TabelaPerfil
-        data={data ?? []}
-        carregandoPerfis={isFetching}
-        empresa={empresaIdParam ?? ""}
-      />
-    </div>
+    <Suspense fallback={<div className="grid space-y-6 p-6"><Skeleton className="h-[400px] w-full" /></div>}>
+      <PerfisContent />
+    </Suspense>
   )
 }

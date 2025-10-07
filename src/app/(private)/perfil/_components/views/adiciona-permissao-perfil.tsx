@@ -22,6 +22,8 @@ import { useQueryClient } from '@tanstack/react-query'
 type PermissaoVinculadoPerfilType = {
   id: string
   nome: string
+  url?: string
+  moduloId?: string
   moduloNome: string
 }
 

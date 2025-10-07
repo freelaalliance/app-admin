@@ -24,7 +24,7 @@ import {
 import { DialogNovoUsuario } from '../../dialogs/NovoUsuarioDialog'
 
 import {
-  colunasTabelaUsuario,
+  getColunasTabelaUsuario,
   optionsStatusUsuario,
 } from './colunas-tabela-usuarios'
 import { DataTableFacetedFilter } from './filtro-status-usuario'
@@ -38,9 +38,11 @@ interface DataTableUsuarioProps {
 }
 
 export function DataTableUsuarios({ data, empresa, carregandoUsuarios }: DataTableUsuarioProps) {
+  const colunas = getColunasTabelaUsuario(empresa)
+  
   const table = useReactTable({
     data,
-    columns: colunasTabelaUsuario,
+    columns: colunas,
     enableRowSelection: true,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -135,7 +137,7 @@ export function DataTableUsuarios({ data, empresa, carregandoUsuarios }: DataTab
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={colunasTabelaUsuario.length}
+                  colSpan={colunas.length}
                   className="h-16 text-center text-padrao-gray-200 text-sm font-medium mt-5 md:text-base lg:text-lg"
                 >
                   Nenhum usuário encontrado!

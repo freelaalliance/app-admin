@@ -15,13 +15,13 @@ export const optionsStatusUsuario = [
   },
 ]
 
-export const colunasTabelaUsuario: ColumnDef<UsuarioType>[] = [
+export const getColunasTabelaUsuario = (idEmpresa: string): ColumnDef<UsuarioType>[] => [
   {
     id: 'acoes',
     enableHiding: false,
     cell: ({ row }) => (
       <div className="w-2">
-        <MenuTabelaUsuario row={row.original} />
+        <MenuTabelaUsuario row={row.original} idEmpresa={idEmpresa} />
       </div>
     ),
   },

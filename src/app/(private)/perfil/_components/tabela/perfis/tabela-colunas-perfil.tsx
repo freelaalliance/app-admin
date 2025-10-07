@@ -1,10 +1,10 @@
 import { ColumnDef } from '@tanstack/react-table'
 
-import { PerfilType } from '@/app/modulo/administrativo/empresa/schemas/SchemaPerfil'
+import { PerfilEmpresa } from '@/hooks/_empresas/_types/perfilTypes'
 
 import { MenuTabelaPerfil } from './tabela-menu-perfil'
 
-export const colunasPerfil: ColumnDef<PerfilType>[] = [
+export const colunasPerfil: ColumnDef<PerfilEmpresa, any>[] = [
   {
     id: 'acoes',
     enableHiding: false,
@@ -15,19 +15,19 @@ export const colunasPerfil: ColumnDef<PerfilType>[] = [
     ),
   },
   {
-    accessorKey: 'nome',
+    accessorKey: 'perfil_nome',
     header: 'Perfil',
     enableColumnFilter: false,
     enableHiding: false,
-    cell: ({ row }) => <div className="md:w-96">{row.getValue('nome')}</div>,
+    cell: ({ row }) => <div className="md:w-96">{row.getValue('perfil_nome')}</div>,
   },
   {
-    accessorKey: 'administrativo',
+    accessorKey: 'perfil_administrativo',
     header: 'Administrativo',
     enableColumnFilter: false,
     enableHiding: false,
     cell: ({ row }) => (
-      <div>{row.getValue('administrativo') ? 'Sim' : 'Não'}</div>
+      <div>{row.getValue('perfil_administrativo') ? 'Sim' : 'Não'}</div>
     ),
   },
 ]

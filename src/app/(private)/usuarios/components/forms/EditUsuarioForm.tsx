@@ -23,18 +23,17 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { FormularioEdicaoUsuarioType, schemaFormularioEdicaoUsuario, UsuarioType } from '@/hooks/_empresas/_types/usuarioTypes'
-import { useSearchParams } from 'next/navigation'
 import { usePerfisEmpresa, useUpdateUsuario } from '@/hooks/_empresas/_hooks/useAdminData'
 
 interface FormularioNovoUsuarioProps {
   dadosUsuario: UsuarioType
+  idEmpresa: string
 }
 
 export function EditarUsuarioForm({
   dadosUsuario,
+  idEmpresa,
 }: FormularioNovoUsuarioProps) {
-  const searchParams = useSearchParams()
-  const idEmpresa = searchParams.get('empresa') || ''
 
   const { data: listaPerfis, isFetching: carregandoPerfisEmpresa } = usePerfisEmpresa(
     idEmpresa,
@@ -118,8 +117,8 @@ export function EditarUsuarioForm({
                   <SelectContent>
                     {listaPerfis?.map((perfil) => {
                       return (
-                        <SelectItem key={perfil.id} value={perfil.id}>
-                          {perfil.nome}
+                        <SelectItem key={perfil.perfil_id} value={perfil.perfil_id}>
+                          {perfil.perfil_nome}
                         </SelectItem>
                       )
                     })}

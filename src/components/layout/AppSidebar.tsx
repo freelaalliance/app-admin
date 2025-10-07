@@ -6,11 +6,12 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter, SidebarGroup, SidebarHeader,
-  SidebarMenu, SidebarMenuButton, SidebarMenuItem,
+  SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarRail
+  SidebarRail,
+  useSidebar
 } from '@/components/ui/sidebar'
 import type { EmpresaFormType, empresaType } from '@/hooks/_empresas/_types/empresaTypes'
 import { EmpresasSwitcher } from './EmpresasSwitcher'
@@ -19,6 +20,9 @@ import { useCreateEmpresa, useDeleteEmpresa, useEmpresas, useModulosEmpresa, use
 import { useRouter, useSearchParams } from 'next/navigation'
 import { EmpresaDialog } from '@/hooks/_empresas/_components/dialogs/EmpresaDialog'
 import { ConfirmDeleteDialog } from '@/hooks/_empresas/_components/dialogs/ConfirmDeleteDialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 export function AppSidebar({
   ...props
@@ -43,6 +47,7 @@ export function AppSidebar({
   const deleteEmpresa = useDeleteEmpresa()
 
   const { data: modulosEmpresa } = useModulosEmpresa(empresaIdParam || '')
+  const { isMobile } = useSidebar()
 
   const handleEmpresaChange = (empresaId: string) => {
     router.push(`?empresa=${empresaId}`, { scroll: false })
@@ -52,11 +57,20 @@ export function AppSidebar({
     setEmpresaDialog({ open: true, empresa: null })
   }
 
-  const handleEditEmpresa = (empresa: empresaType) => {
+  const handleEditEmpresa = (empresa?: empresaType) => {
+    if(!empresa){
+      toast.error("Selecione uma empresa antes de editar os dados da empresa!")
+      return;
+    }
     setEmpresaDialog({ open: true, empresa })
   }
 
-  const handleDeleteEmpresa = (empresa: empresaType) => {
+  const handleDeleteEmpresa = (empresa?: empresaType) => {
+    if(!empresa){
+      toast.error("Selecione uma empresa antes de editar os dados da empresa!")
+      return;
+    }
+
     setDeleteDialog({ open: true, empresa })
   }
 
@@ -133,6 +147,33 @@ export function AppSidebar({
                       <a href={"/usuarios?empresa=" + empresaIdParam}>Usuários</a>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
+                  <SidebarMenuItem key={"editar"}>
+                    <SidebarMenuButton>
+                      Configurações
+                    </SidebarMenuButton>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <SidebarMenuAction showOnHover>
+                          <MoreHorizontal />
+                          <span className="sr-only">Configurações</span>
+                        </SidebarMenuAction>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        className="w-48 rounded-lg p-4"
+                        side={isMobile ? "bottom" : "right"}
+                        align={isMobile ? "end" : "start"}
+                      >
+                        <DropdownMenuItem onClick={() => handleEditEmpresa(data?.find(e => e.id === empresaIdParam))}>
+                          <Pencil className="text-muted-foreground" />
+                          <span>Editar</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem variant='destructive' onClick={() => handleDeleteEmpresa(data?.find(e => e.id === empresaIdParam))}>
+                          <Trash2 className="text-muted-foreground" />
+                          <span>Excluir empresa</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </SidebarMenuItem>
                 </SidebarMenuSub>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -147,7 +188,7 @@ export function AppSidebar({
           <SidebarMenu>
             <SidebarMenuItem>
               <div className="px-2 py-2 text-center">
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-white/80">
                   ERP Alliance - Administrador
                 </p>
               </div>

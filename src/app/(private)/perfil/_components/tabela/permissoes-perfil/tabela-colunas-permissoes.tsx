@@ -1,9 +1,9 @@
 import { ColumnDef } from '@tanstack/react-table'
 
-import { PermissaoPerfilType } from '@/app/modulo/administrativo/empresa/schemas/SchemaModulo'
+import { PermissaoPerfilType } from '@/hooks/_empresas/_types/perfilTypes'
 import { Checkbox } from '@/components/ui/checkbox'
 
-export const colunasPermissoesPerfil: ColumnDef<PermissaoPerfilType>[] = [
+export const colunasPermissoesPerfil: ColumnDef<PermissaoPerfilType, any>[] = [
   {
     id: 'select',
     header: ({ table }) => (

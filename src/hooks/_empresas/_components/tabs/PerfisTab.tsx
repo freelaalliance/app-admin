@@ -34,15 +34,17 @@ export function PerfisTab({ empresaId }: PerfisTabProps) {
       setEditingPerfil(perfil)
       if ('perfil_nome' in perfil) {
         // É PerfilEmpresa
+        const perfilEmpresa = perfil as PerfilEmpresa
         setFormData({
-          nome: perfil.perfil_nome,
-          administrativo: perfil.perfil_administrativo || false,
+          nome: perfilEmpresa.perfil_nome,
+          administrativo: perfilEmpresa.perfil_administrativo || false,
         })
       } else {
         // É Perfil
+        const perfilSimples = perfil as Perfil
         setFormData({
-          nome: perfil.nome,
-          administrativo: perfil.administrativo,
+          nome: perfilSimples.nome,
+          administrativo: perfilSimples.administrativo,
         })
       }
     } else {

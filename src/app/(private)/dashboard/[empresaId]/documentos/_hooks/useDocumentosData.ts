@@ -13,14 +13,15 @@ const documentosKeys = {
 
 const usuarioKeys = {
   all: ['usuario'] as const,
-  details: () => [...usuarioKeys.all, 'details'] as const,
+  details: (empresaId: string) => [...usuarioKeys.all, 'details', empresaId] as const,
 }
 
 // Hook para dados do usuário
-export function useUsuario() {
+export function useUsuario(empresaId: string | undefined) {
   return useQuery({
-    queryKey: usuarioKeys.details(),
-    queryFn: () => documentosApi.getUsuario(),
+    queryKey: usuarioKeys.details(empresaId ?? ''),
+    queryFn: () => documentosApi.getUsuario(empresaId!),
+    enabled: !!empresaId,
     staleTime: 10 * 60 * 1000, // 10 minutos - dados do usuário mudam raramente
   })
 }

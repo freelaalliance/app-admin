@@ -7,23 +7,10 @@ export const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Incluir cookies em todas as requisições
 })
 
-// Interceptor para adicionar token de autenticação
-axiosInstance.interceptors.request.use(
-  (config) => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('authToken')
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-      }
-    }
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  }
-)
+// Os cookies HTTP-Only são incluídos automaticamente pelo withCredentials: true
 
 // Interceptor para tratamento de erros
 axiosInstance.interceptors.response.use(

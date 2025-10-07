@@ -1,11 +1,28 @@
 'use client'
 
-import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher'
 import Image from 'next/image'
+import { Button } from '../ui/button'
+import { LogOut } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
+import { logoutAction } from '@/lib/actions/auth'
 
 export function DashboardHeader() {
+  const router = useRouter()
+  const queryCliente = useQueryClient()
+
+  const handleLogout = async () => {
+    try {
+      await logoutAction()
+      queryCliente.clear()
+      router.push('/login')
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error)
+    }
+  }
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background shadow-md">
+    <header className="sticky top-0 z-50 w-full rounded-t-lg bg-background shadow-md">
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
@@ -21,7 +38,14 @@ export function DashboardHeader() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <ThemeSwitcher />
+          <Button
+            variant="outline"
+            onClick={handleLogout}
+            className="flex items-center gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            Sair
+          </Button>
         </div>
       </div>
     </header>

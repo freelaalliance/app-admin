@@ -1,9 +1,9 @@
 import { ColumnDef } from '@tanstack/react-table'
 
-import { ModuloType } from '@/app/modulo/administrativo/empresa/schemas/SchemaModulo'
+import { Modulo } from '@/hooks/_empresas/_types/moduloTypes'
 import { Checkbox } from '@/components/ui/checkbox'
 
-export const colunasTabelaModulos: ColumnDef<ModuloType>[] = [
+export const colunasTabelaModulos: ColumnDef<Modulo>[] = [
   {
     id: 'select',
     header: ({ table }) => (

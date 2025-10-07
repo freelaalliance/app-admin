@@ -17,15 +17,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { PermissaoPerfilType as PermissaoVinculadoPerfilType } from '@/hooks/_empresas/_types/perfilTypes'
 
 import { colunasPermissoesPerfil } from '../permissoes-perfil/tabela-colunas-permissoes'
 import { colunasPermissoesVinculadasPerfil } from './tabela-colunas-permissoes-vinculados'
-
-type PermissaoVinculadoPerfilType = {
-  id: string
-  nome: string
-  moduloNome: string
-}
 
 interface DataTableProps {
   data: Array<PermissaoVinculadoPerfilType>

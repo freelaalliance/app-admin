@@ -1,6 +1,6 @@
 import { MoreVertical } from 'lucide-react'
 
-import type { UsuarioType } from '@/app/modulo/administrativo/empresa/schemas/SchemaUsuarios'
+import type { UsuarioType } from '@/hooks/_empresas/_types/usuarioTypes'
 import { AlertDialog, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogTrigger } from '@/components/ui/dialog'
@@ -16,9 +16,10 @@ import { DialogEdicaoUsuario } from '../../dialogs/EdicaoUsuarioDialog'
 
 interface MenuTabelaUsuarioProps {
   row: UsuarioType
+  idEmpresa: string
 }
 
-export function MenuTabelaUsuario({ row }: MenuTabelaUsuarioProps) {
+export function MenuTabelaUsuario({ row, idEmpresa }: MenuTabelaUsuarioProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -41,7 +42,7 @@ export function MenuTabelaUsuario({ row }: MenuTabelaUsuarioProps) {
               Editar usuário
             </DropdownMenuItem>
           </DialogTrigger>
-          <DialogEdicaoUsuario dadosUsuario={row} />
+          <DialogEdicaoUsuario dadosUsuario={row} idEmpresa={idEmpresa} />
         </Dialog>
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -58,6 +59,7 @@ export function MenuTabelaUsuario({ row }: MenuTabelaUsuarioProps) {
           <ConfirmaAlteracaoStatusUsuarioDialog
             idUsuario={row.id}
             statusUsuario={row.status === 'desativado'}
+            idEmpresa={idEmpresa}
           />
         </AlertDialog>
       </DropdownMenuContent>

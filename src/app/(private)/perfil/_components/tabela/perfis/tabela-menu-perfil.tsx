@@ -14,10 +14,10 @@ import {
 import { DialogConfirmaDeletaPerfil } from '../../dialogs/DialogConfirmaDeletaPerfil'
 import { DialogEditaPerfil } from '../../dialogs/DialogEditaPerfil'
 import { DialogPermissoesPerfil } from '../../dialogs/DialogPermissoesPerfil'
-import { Perfil } from '@/hooks/_empresas/_types/perfilTypes'
+import { PerfilEmpresa } from '@/hooks/_empresas/_types/perfilTypes'
 
 interface MenuTabelaPerfilProps {
-  row: Perfil
+  row: PerfilEmpresa
 }
 
 export function MenuTabelaPerfil({ row }: MenuTabelaPerfilProps) {
@@ -44,10 +44,10 @@ export function MenuTabelaPerfil({ row }: MenuTabelaPerfilProps) {
             </DropdownMenuItem>
           </DialogTrigger>
           <DialogEditaPerfil
-            idPerfil={row.id}
-            nomePerfil={row.nome}
-            perfilAdministrativo={row.administrativo}
-            idEmpresa={row.empresaId}
+            idPerfil={row.perfil_id}
+            nomePerfil={row.perfil_nome}
+            perfilAdministrativo={row.perfil_administrativo}
+            idEmpresa={row.empresa_id}
           />
         </Dialog>
         <AlertDialog>
@@ -60,7 +60,7 @@ export function MenuTabelaPerfil({ row }: MenuTabelaPerfilProps) {
               Excluir perfil
             </DropdownMenuItem>
           </AlertDialogTrigger>
-          <DialogConfirmaDeletaPerfil id={row.id} />
+          <DialogConfirmaDeletaPerfil id={row.perfil_id} />
         </AlertDialog>
         <DropdownMenuSeparator />
         <Dialog>
@@ -73,7 +73,7 @@ export function MenuTabelaPerfil({ row }: MenuTabelaPerfilProps) {
               Editar permissões
             </DropdownMenuItem>
           </DialogTrigger>
-          <DialogPermissoesPerfil idPerfil={row.id} idEmpresa={row.empresaId} />
+          <DialogPermissoesPerfil idPerfil={row.perfil_id} idEmpresa={row.empresa_id} />
         </Dialog>
       </DropdownMenuContent>
     </DropdownMenu>

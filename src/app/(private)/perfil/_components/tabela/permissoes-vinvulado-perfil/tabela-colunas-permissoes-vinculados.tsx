@@ -1,9 +1,9 @@
 import { ColumnDef } from '@tanstack/react-table'
 
-import { PermissaoVinculadoPerfilType } from '@/app/modulo/administrativo/empresa/schemas/SchemaModulo'
+import { PermissaoPerfilType as PermissaoVinculadoPerfilType } from '@/hooks/_empresas/_types/perfilTypes'
 import { Checkbox } from '@/components/ui/checkbox'
 
-export const colunasPermissoesVinculadasPerfil: ColumnDef<PermissaoVinculadoPerfilType>[] =
+export const colunasPermissoesVinculadasPerfil: ColumnDef<PermissaoVinculadoPerfilType, any>[] =
   [
     {
       id: 'select',

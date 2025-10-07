@@ -10,20 +10,19 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { useSearchParams } from 'next/navigation'
 import { useToggleUsuarioStatus } from '@/hooks/_empresas/_hooks/useAdminData'
 
 interface AlteracaoStatusUsuarioDialogProps {
   idUsuario: string
   statusUsuario: boolean
+  idEmpresa: string
 }
 
 export function ConfirmaAlteracaoStatusUsuarioDialog({
   idUsuario,
   statusUsuario,
+  idEmpresa,
 }: AlteracaoStatusUsuarioDialogProps) {
-  const searchParams = useSearchParams()
-  const idEmpresa = searchParams.get('empresa') || ''
 
   const alterarStatus = useToggleUsuarioStatus()
 

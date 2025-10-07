@@ -24,11 +24,11 @@ import {
 import { DialogNovoPerfil } from '../../dialogs/DialogNovoPerfil'
 
 import { colunasPerfil } from './tabela-colunas-perfil'
-import { Perfil } from '@/hooks/_empresas/_types/perfilTypes'
+import { PerfilEmpresa } from '@/hooks/_empresas/_types/perfilTypes'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface TabelaPerfilProps {
-  data: Array<Perfil>
+  data: Array<PerfilEmpresa>
   empresa: string
   carregandoPerfis: boolean
 }

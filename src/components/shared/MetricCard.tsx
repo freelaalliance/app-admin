@@ -75,3 +75,47 @@ export function MetricCard({
     </Card>
   )
 }
+
+interface MetricCardSkeletonProps {
+  className?: string
+  showTrend?: boolean
+}
+
+export function MetricCardSkeleton({ 
+  className, 
+  showTrend = false 
+}: MetricCardSkeletonProps) {
+  return (
+    <Card className={cn('border-alliance-neutral-200 dark:border-alliance-neutral-700 hover:shadow-lg transition-shadow', className)}>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        {/* Title skeleton */}
+        <div className="h-4 bg-muted animate-pulse rounded w-28" />
+        {/* Icon skeleton */}
+        <div className="h-4 w-4 bg-muted animate-pulse rounded" />
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {/* Value skeleton */}
+          <div className="h-8 bg-muted animate-pulse rounded w-20" />
+          
+          {/* Description/Trend area */}
+          <div className="flex items-center gap-2">
+            {showTrend ? (
+              <>
+                {/* Trend icon */}
+                <div className="h-4 w-4 bg-muted animate-pulse rounded" />
+                {/* Trend percentage */}
+                <div className="h-4 bg-muted animate-pulse rounded w-12" />
+                {/* Trend label */}
+                <div className="h-3 bg-muted animate-pulse rounded w-16" />
+              </>
+            ) : (
+              /* Description skeleton */
+              <div className="h-4 bg-muted animate-pulse rounded w-36" />
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}

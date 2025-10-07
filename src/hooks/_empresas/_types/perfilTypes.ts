@@ -6,10 +6,11 @@ export interface Perfil {
 }
 
 export interface PerfilEmpresa {
-  nome: string;
-  id: string;
-  administrativo: boolean;
-  empresaId: string;
+  perfil_id: string;
+  perfil_nome: string;
+  perfil_administrativo: boolean;
+  empresa_id: string;
+  usuarios_count?: number;
 }
 
 export interface CreatePerfilData {
@@ -30,7 +31,7 @@ export interface PerfilPermissao {
 export type PermissaoPerfilType = {
   nome: string;
   id: string;
-  url: string;
-  moduloId: string;
+  url?: string;
+  moduloId?: string;
   moduloNome: string;
 }

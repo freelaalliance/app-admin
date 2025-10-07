@@ -20,14 +20,9 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useRemoverFuncaoPerfil } from '@/hooks/_empresas/_hooks/useAdminData'
+import { PermissaoPerfilType } from '@/hooks/_empresas/_types/perfilTypes'
 
 import { colunasPermissoesPerfil } from './tabela-colunas-permissoes'
-
-type PermissaoPerfilType = {
-  id: string
-  nome: string
-  moduloNome: string
-}
 
 interface DataTablePermissoesProps {
   data: Array<PermissaoPerfilType>
