@@ -28,25 +28,6 @@ export async function loginAction(email: string, senha: string) {
       }
     }
 
-    // Extrai o cookie sessionAdmin da resposta
-    const setCookieHeader = response.headers.get('set-cookie')
-    if (setCookieHeader) {
-      const sessionMatch = setCookieHeader.match(/sessionAdmin=([^;]+)/)
-      if (sessionMatch) {
-        const cookieStore = await cookies()
-        cookieStore.set('sessionAdmin', sessionMatch[1], {
-          httpOnly: false,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          maxAge: 60 * 60 * 8, // 8 horas (igual ao backend)
-          path: '/',
-        })
-        console.log('🍪 Cookie sessionAdmin configurado')
-      }
-    }
-
-    console.log('✅ Login OK')
-
     return {
       success: true,
       message: data.msg || 'Login realizado com sucesso',
