@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
@@ -20,6 +21,7 @@ import { loginFormSchema, type LoginFormData } from "@/lib/validations/auth"
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
+  const router = useRouter()
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
@@ -37,6 +39,10 @@ export function LoginForm() {
 
       if (result && !result.success) {
         setError(result.message || "Erro ao fazer login")
+      } else if (result && result.success) {
+        // Sucesso - redireciona para o dashboard
+        router.push('/')
+        router.refresh()
       }
     } catch (error) {
       console.error("Erro ao autenticar:", error)

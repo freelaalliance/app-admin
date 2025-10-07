@@ -1,6 +1,8 @@
+import { useState, useMemo } from "react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { ChevronsUpDown, Check, Plus, Building2 } from "lucide-react";
+import { ChevronsUpDown, Check, Plus, Building2, Search } from "lucide-react";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton, useSidebar } from "../ui/sidebar";
+import { Input } from "@/components/ui/input";
 import { empresaType } from "@/hooks/_empresas/_types/empresaTypes";
 import { aplicarMascaraDocumento } from "@/lib/utils/cnpj";
 
@@ -14,6 +16,17 @@ interface EmpresasSwitcherProps {
 
 export function EmpresasSwitcher({ empresas, empresaAtual, empresaSelecionada, onEmpresaChange, onNovaEmpresa }: EmpresasSwitcherProps) {
   const { isMobile } = useSidebar()
+  const [searchTerm, setSearchTerm] = useState("")
+
+  // Filtra empresas baseado no termo de busca
+  const empresasFiltradas = useMemo(() => {
+    if (!searchTerm) return empresas
+    
+    return empresas.filter((empresa) =>
+      empresa.nome.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }, [empresas, searchTerm])
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -51,19 +64,47 @@ export function EmpresasSwitcher({ empresas, empresaAtual, empresaSelecionada, o
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">Lista de empresas</DropdownMenuLabel>
+            
+            {/* Input de busca */}
+            <div className="px-2 pb-2">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar empresa..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-8 pl-8 text-sm"
+                />
+              </div>
+            </div>
 
-            {empresas.map((empresa) => (
-              <DropdownMenuItem
-                key={empresa.id}
-                onSelect={() => onEmpresaChange(empresa.id)}
-                className="gap-2 p-2"
-              >
-                {empresa.nome}
-                {empresaSelecionada === empresa.id && (
-                  <Check className="h-4 w-4" />
-                )}
-              </DropdownMenuItem>
-            ))}
+            <DropdownMenuSeparator />
+
+            {/* Lista de empresas filtradas */}
+            <div className="max-h-[300px] overflow-y-auto">
+              {empresasFiltradas.length > 0 ? (
+                empresasFiltradas.map((empresa) => (
+                  <DropdownMenuItem
+                    key={empresa.id}
+                    onSelect={() => {
+                      onEmpresaChange(empresa.id)
+                      setSearchTerm("") // Limpa o filtro após selecionar
+                    }}
+                    className="gap-2 p-2 justify-between"
+                  >
+                    <span className="line-clamp-1">{empresa.nome}</span>
+                    {empresaSelecionada === empresa.id && (
+                      <Check className="h-4 w-4" />
+                    )}
+                  </DropdownMenuItem>
+                ))
+              ) : (
+                <div className="py-6 text-center text-sm text-muted-foreground">
+                  Nenhuma empresa encontrada
+                </div>
+              )}
+            </div>
+            
             <DropdownMenuSeparator />
 
             <DropdownMenuItem onClick={onNovaEmpresa} className="gap-2 p-2">

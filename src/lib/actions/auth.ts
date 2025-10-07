@@ -1,6 +1,5 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3333/api'
@@ -46,7 +45,12 @@ export async function loginAction(email: string, senha: string) {
       }
     }
 
-    console.log('✅ Login OK - Redirecionando...')
+    console.log('✅ Login OK')
+
+    return {
+      success: true,
+      message: data.msg || 'Login realizado com sucesso',
+    }
 
   } catch (error: any) {
     console.error('❌ Erro:', error.message)
@@ -55,9 +59,6 @@ export async function loginAction(email: string, senha: string) {
       message: 'Erro de conexão com o servidor',
     }
   }
-
-  // Redirect fora do try-catch para não ser capturado
-  redirect('/')
 }
 
 export async function logoutAction() {
@@ -86,5 +87,5 @@ export async function logoutAction() {
     cookieStore.delete('sessionAdmin')
   }
 
-  redirect('/login')
+  return { success: true }
 }
