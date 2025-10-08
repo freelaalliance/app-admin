@@ -1,39 +1,44 @@
-# Refatoração: Autenticação Client-Side
+# Refatoração: Autenticação Client-Side com Axios
 
 ## 📋 Resumo da Mudança
 
-Refatoração completa do sistema de autenticação de **Server Actions** para **Client-Side API calls**.
+Refatoração completa do sistema de autenticação de **Server Actions** para **Client-Side API calls usando Axios**.
 
 ## 🔄 Mudanças Realizadas
 
 ### 1. **Criado novo serviço de API** (`src/lib/api/auth.ts`)
-- Funções `login()` e `logout()` que fazem fetch diretamente para o backend
-- Uso de `credentials: 'include'` para permitir cookies cross-origin
+- Funções `login()` e `logout()` usando **Axios** em vez de fetch
+- Utiliza `axiosInstance` pré-configurada de `src/lib/axios.ts`
+- Uso de `withCredentials: true` para permitir cookies cross-origin (já configurado no Axios)
 - Retorna interfaces tipadas `LoginResponse` e `LogoutResponse`
+- Tratamento de erros usando `error.response?.data?.msg`
 
 ### 2. **Atualizado LoginForm** (`src/components/form/login.tsx`)
 - Removido import de `loginAction` (Server Action)
-- Adicionado import de `login` (API Client)
+- Adicionado import de `login` (API Client com Axios)
 - Usa `window.location.href = '/'` para redirect após sucesso
 - Tratamento de erro usando `error.message`
 
 ### 3. **Atualizado DashboardHeader** (`src/components/layout/DashboardHeader.tsx`)
 - Removido import de `logoutAction` (Server Action)
-- Adicionado import de `logout` (API Client)
+- Adicionado import de `logout` (API Client com Axios)
 - Usa `window.location.href = '/login'` para redirect após logout
 - Garante redirect mesmo em caso de erro
 
 ### 4. **Removido arquivo de Server Actions** (`src/lib/actions/auth.ts`)
 - Arquivo não é mais necessário
-- Todas as chamadas agora são client-side
+- Todas as chamadas agora são client-side com Axios
 
 ## ✅ Vantagens da Nova Abordagem
 
-1. **Simplicidade**: Código mais direto e fácil de entender
-2. **Cookies automáticos**: Backend gerencia completamente os cookies via `set-cookie`
-3. **Menos erros**: Elimina erros como `NEXT_REDIRECT` e `UnrecognizedActionError`
-4. **Melhor controle**: Redirect usando `window.location.href` garante reload completo
-5. **Consistência**: Mesma abordagem em login e logout
+1. **Uso do Axios**: Biblioteca robusta com melhor tratamento de erros e interceptors
+2. **Interceptor de erros**: Redireciona automaticamente para login em caso de 401
+3. **Simplicidade**: Código mais direto e fácil de entender
+4. **Cookies automáticos**: `withCredentials: true` já configurado no axiosInstance
+5. **Menos erros**: Elimina erros como `NEXT_REDIRECT` e `UnrecognizedActionError`
+6. **Melhor controle**: Redirect usando `window.location.href` garante reload completo
+7. **Consistência**: Mesma abordagem em login e logout
+8. **TypeScript**: Tipagem completa com generics do Axios
 
 ## 🔧 Requisitos do Backend
 
