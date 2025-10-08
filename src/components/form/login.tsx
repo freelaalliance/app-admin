@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react"
-import { loginAction } from "@/lib/actions/auth"
+import { login } from "@/lib/api/auth"
 import { loginFormSchema, type LoginFormData } from "@/lib/validations/auth"
 
 export function LoginForm() {
@@ -35,17 +35,17 @@ export function LoginForm() {
     setError("")
     
     try {
-      const result = await loginAction(data.email, data.senha)
+      const result = await login(data.email, data.senha)
 
-      if (result && !result.success) {
-        setError(result.message || "Erro ao fazer login")
-      } else if (result && result.success) {
+      if (result.status) {
         // Sucesso - redireciona para o dashboard
-        router.push('/')
+        window.location.href = '/'
+      } else {
+        setError(result.msg || "Erro ao fazer login")
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao autenticar:", error)
-      setError("Erro ao processar login")
+      setError(error.message || "Erro ao processar login")
     }
   }
 

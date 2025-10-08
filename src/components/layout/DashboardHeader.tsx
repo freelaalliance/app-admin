@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { LogOut } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
-import { logoutAction } from '@/lib/actions/auth'
+import { logout } from '@/lib/api/auth'
 
 export function DashboardHeader() {
   const router = useRouter()
@@ -13,11 +13,13 @@ export function DashboardHeader() {
 
   const handleLogout = async () => {
     try {
-      await logoutAction()
+      await logout()
       queryCliente.clear()
-      router.push('/login')
+      window.location.href = '/login'
     } catch (error) {
       console.error('Erro ao fazer logout:', error)
+      // Mesmo com erro, redireciona para login
+      window.location.href = '/login'
     }
   }
 
