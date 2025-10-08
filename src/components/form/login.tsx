@@ -20,7 +20,7 @@ import { loginFormSchema, type LoginFormData } from "@/lib/validations/auth"
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("")
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   const form = useForm<LoginFormData>({
@@ -32,20 +32,22 @@ export function LoginForm() {
   })
 
   async function onSubmit(data: LoginFormData) {
-    setError("")
+    setError(null)
     
     try {
       const result = await login(data.email, data.senha)
 
       if (result.status) {
-        // Sucesso - redireciona para o dashboard
-        window.location.href = '/'
+        router.push('/')
       } else {
         setError(result.msg || "Erro ao fazer login")
       }
     } catch (error: any) {
       console.error("Erro ao autenticar:", error)
       setError(error.message || "Erro ao processar login")
+    } 
+    finally {
+      form.reset()
     }
   }
 

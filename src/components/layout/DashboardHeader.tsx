@@ -15,11 +15,10 @@ export function DashboardHeader() {
     try {
       await logout()
       queryCliente.clear()
-      window.location.href = '/login'
+      router.push('/login')
     } catch (error) {
       console.error('Erro ao fazer logout:', error)
-      // Mesmo com erro, redireciona para login
-      window.location.href = '/login'
+      router.push('/login')
     }
   }
 
