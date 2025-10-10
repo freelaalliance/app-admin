@@ -65,30 +65,38 @@ export function TreinamentosCard({ resumo, colaboradores }: TreinamentosCardProp
           <div>
             <h3 className="font-semibold mb-3 text-sm">Colaboradores em Treinamento</h3>
             <div className="space-y-2 max-h-[300px] overflow-y-auto">
-              {colaboradores.map((col) => (
-                <div
-                  key={col.id}
-                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                >
-                  <div className="flex-1">
-                    <p className="font-medium">{col.colaborador.nome}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {col.treinamento.nome} • {col.cargo.nome}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <p className="text-sm font-medium">
-                        {new Date(col.iniciadoEm).toLocaleDateString('pt-BR')}
+              {colaboradores.map((col) => {
+                // Validação segura de data
+                const iniciadoEmDate = col.iniciadoEm ? new Date(col.iniciadoEm) : null
+                const isDateValid = iniciadoEmDate && !isNaN(iniciadoEmDate.getTime())
+
+                return (
+                  <div
+                    key={col.id}
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium">{col.colaborador.nome}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {col.treinamento.nome} • {col.cargo.nome}
                       </p>
-                      <p className="text-xs text-muted-foreground">Iniciado em</p>
                     </div>
-                    <Badge variant="outline" className="ml-2">
-                      {col.treinamento.tipo}
-                    </Badge>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="text-sm font-medium">
+                          {isDateValid 
+                            ? iniciadoEmDate.toLocaleDateString('pt-BR')
+                            : 'Data inválida'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Iniciado em</p>
+                      </div>
+                      <Badge variant="outline" className="ml-2">
+                        {col.treinamento.tipo}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         ) : (

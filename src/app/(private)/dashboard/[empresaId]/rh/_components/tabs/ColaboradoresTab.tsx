@@ -35,51 +35,61 @@ export function ColaboradoresTab({ colaboradores, isLoading }: ColaboradoresTabP
 
   return (
     <div className="space-y-4">
-      {colaboradores.map((colaborador) => (
-        <Card key={colaborador.id} className="p-4 hover:shadow-md transition-shadow">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            {/* Informações Principais */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h3 className="font-semibold text-lg">{colaborador.nome}</h3>
-                <Badge variant={colaborador.status === 'ativo' ? 'default' : 'secondary'}>
-                  {colaborador.status === 'ativo' ? 'Ativo' : 'Demitido'}
-                </Badge>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-muted-foreground">
-                <div>
-                  <span className="font-medium">Cargo:</span> {colaborador.cargo}
-                </div>
-                <div>
-                  <span className="font-medium">Departamento:</span> {colaborador.departamento}
-                </div>
-                <div>
-                  <span className="font-medium">Admissão:</span>{' '}
-                  {format(new Date(colaborador.data_admissao), 'dd/MM/yyyy', { locale: ptBR })}
-                </div>
-                {colaborador.data_demissao && (
-                  <div>
-                    <span className="font-medium">Demissão:</span>{' '}
-                    {format(new Date(colaborador.data_demissao), 'dd/MM/yyyy', { locale: ptBR })}
-                  </div>
-                )}
-              </div>
-            </div>
+      {colaboradores.map((colaborador) => {
+        // Validação segura de datas
+        const admissaoDate = colaborador.admitidoEm ? new Date(colaborador.admitidoEm) : null
+        const demissaoDate = colaborador.demitidoEm ? new Date(colaborador.demitidoEm) : null
+        
+        const isAdmissaoValid = admissaoDate && !isNaN(admissaoDate.getTime())
+        const isDemissaoValid = demissaoDate && !isNaN(demissaoDate.getTime())
 
-            {/* Salário */}
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground mb-1">Salário</p>
-              <p className="text-xl font-bold">
-                R$ {colaborador.salario.toLocaleString('pt-BR', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </p>
+        return (
+          <Card key={colaborador.id} className="p-4 hover:shadow-md transition-shadow">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              {/* Informações Principais */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="font-semibold text-lg">{colaborador.colaborador.nome}</h3>
+                  <Badge variant={colaborador.demitidoEm ? 'secondary' : 'default'}>
+                    {colaborador.demitidoEm ? 'Demitido' : 'Ativo'}
+                  </Badge>
+                </div>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-muted-foreground">
+                  <div>
+                    <span className="font-medium">CPF/CNPJ:</span> {colaborador.colaborador.documento}
+                  </div>
+                  <div>
+                    <span className="font-medium">Cargo:</span> {colaborador.cargo.nome}
+                  </div>
+                  <div>
+                    <span className="font-medium">Admissão:</span>{' '}
+                    {isAdmissaoValid 
+                      ? format(admissaoDate, 'dd/MM/yyyy', { locale: ptBR })
+                      : 'Data inválida'}
+                  </div>
+                  {isDemissaoValid && (
+                    <div>
+                      <span className="font-medium">Demissão:</span>{' '}
+                      {format(demissaoDate, 'dd/MM/yyyy', { locale: ptBR })}
+                    </div>
+                  )}
+                  {colaborador.colaborador.email && (
+                    <div className="col-span-2">
+                      <span className="font-medium">Email:</span> {colaborador.colaborador.email}
+                    </div>
+                  )}
+                  {colaborador.colaborador.telefone && (
+                    <div>
+                      <span className="font-medium">Telefone:</span> {colaborador.colaborador.telefone}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </Card>
-      ))}
+          </Card>
+        )
+      })}
     </div>
   )
 }
