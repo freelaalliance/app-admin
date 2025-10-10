@@ -2,64 +2,29 @@
 
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { FileDown, ShoppingCart, Users, Package, DollarSign } from 'lucide-react'
+import { FileDown, ShoppingCart, Users, Package } from 'lucide-react'
 import { IndicadorInfo } from '@/components/shared/IndicadorInfo'
-import { useEstatisticasVendas, useTopProdutos, useTopClientes } from './_hooks/useVendasData'
+import { useClienteTop, useProdutoTop, useTotalClientes, useTotalProdutos } from './_hooks/useVendasData'
 import { EstatisticasVendasCard } from './_components/cards/EstatisticasVendasCard'
 
 export default function VendasPage() {
   const params = useParams()
   const empresaId = params.empresaId as string
 
-  const { data: estatisticas, isLoading: isLoadingEstatisticas } = useEstatisticasVendas(empresaId)
-  const { data: topProdutos, isLoading: isLoadingProdutos } = useTopProdutos(empresaId)
-  const { data: topClientes, isLoading: isLoadingClientes } = useTopClientes(empresaId)
+  const { data: clienteTop, isFetching: isLoadingClienteTop } = useClienteTop(empresaId)
+  const { data: produtoTop, isFetching: isLoadingProdutoTop } = useProdutoTop(empresaId)
+  const { data: totalClientes, isFetching: isLoadingTotalClientes } = useTotalClientes(empresaId)
+  const { data: totalProdutos, isFetching: isLoadingTotalProdutos } = useTotalProdutos(empresaId)
 
-  const isLoading = isLoadingEstatisticas || isLoadingProdutos || isLoadingClientes
+  const isLoading = isLoadingClienteTop || isLoadingProdutoTop || isLoadingTotalClientes || isLoadingTotalProdutos
 
   const handleExportarPDF = () => {
-    if (!estatisticas || !topProdutos || !topClientes) {
+    if (!clienteTop || !produtoTop || !totalClientes || !totalProdutos) {
       alert('Aguarde o carregamento dos dados antes de exportar.')
       return
     }
 
     try {
-      // Dados do resumo executivo
-      const resumoData = [
-        { label: 'Total de Vendas', valor: estatisticas.total_vendas.toString() },
-        {
-          label: 'Valor Total',
-          valor: `R$ ${estatisticas.valor_total_vendas.toLocaleString('pt-BR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`,
-        },
-        { label: 'Total de Clientes', valor: estatisticas.total_clientes.toString() },
-        { label: 'Total de Produtos', valor: estatisticas.total_produtos.toString() },
-        { label: 'Produto Mais Vendido', valor: estatisticas.produto_mais_vendido || 'N/A' },
-        { label: 'Maior Comprador', valor: estatisticas.cliente_maior_comprador || 'N/A' },
-      ]
-
-      // Dados dos top produtos
-      const produtosData = topProdutos.map((produto) => ({
-        nome: produto.nome,
-        quantidade: produto.quantidade_vendida.toString(),
-        valor_total: `R$ ${produto.valor_total.toLocaleString('pt-BR', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`,
-      }))
-
-      // Dados dos top clientes
-      const clientesData = topClientes.map((cliente) => ({
-        nome: cliente.nome,
-        compras: cliente.total_compras.toString(),
-        valor_total: `R$ ${cliente.valor_total.toLocaleString('pt-BR', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`,
-      }))
-
       // Criar PDF com múltiplas seções
       const { jsPDF } = require('jspdf')
       require('jspdf-autotable')
@@ -86,6 +51,15 @@ export default function VendasPage() {
       doc.text('Resumo Executivo', 14, currentY)
       currentY += 8
 
+      const resumoData = [
+        { label: 'Total de Clientes', valor: totalClientes.totalClientes.toString() },
+        { label: 'Total de Produtos', valor: totalProdutos.totalProdutos.toString() },
+        { label: 'Produto Mais Vendido', valor: produtoTop.nome || 'N/A' },
+        { label: 'Quantidade Vendida', valor: produtoTop.totalVendido.toString() },
+        { label: 'Maior Comprador', valor: clienteTop.cliente || 'N/A' },
+        { label: 'Total de Vendas do Cliente', valor: clienteTop.totalVendas.toString() },
+      ]
+
       doc.autoTable({
         startY: currentY,
         head: [['Indicador', 'Valor']],
@@ -95,51 +69,7 @@ export default function VendasPage() {
         margin: { left: 14, right: 14 },
       })
 
-      currentY = (doc as any).lastAutoTable.finalY + 15
-
-      // Seção 2: Top Produtos
-      if (produtosData.length > 0) {
-        doc.setFontSize(14)
-        doc.setFont('helvetica', 'bold')
-        doc.text('Top Produtos Vendidos', 14, currentY)
-        currentY += 8
-
-        doc.autoTable({
-          startY: currentY,
-          head: [['Produto', 'Quantidade Vendida', 'Valor Total']],
-          body: produtosData.map((p) => [p.nome, p.quantidade, p.valor_total]),
-          theme: 'grid',
-          headStyles: { fillColor: [234, 179, 8] },
-          margin: { left: 14, right: 14 },
-        })
-
-        currentY = (doc as any).lastAutoTable.finalY + 15
-      }
-
-      // Seção 3: Top Clientes
-      if (clientesData.length > 0) {
-        // Verifica se precisa de nova página
-        if (currentY > 250) {
-          doc.addPage()
-          currentY = 20
-        }
-
-        doc.setFontSize(14)
-        doc.setFont('helvetica', 'bold')
-        doc.text('Top Clientes Compradores', 14, currentY)
-        currentY += 8
-
-        doc.autoTable({
-          startY: currentY,
-          head: [['Cliente', 'Total de Compras', 'Valor Total']],
-          body: clientesData.map((c) => [c.nome, c.compras, c.valor_total]),
-          theme: 'grid',
-          headStyles: { fillColor: [59, 130, 246] },
-          margin: { left: 14, right: 14 },
-        })
-      }
-
-      // Rodapé em todas as páginas
+      // Rodapé
       const pageCount = doc.internal.getNumberOfPages()
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i)
@@ -183,36 +113,36 @@ export default function VendasPage() {
       {/* Cards de Indicadores */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <IndicadorInfo
-          titulo="Total de Vendas"
-          info={estatisticas?.total_vendas?.toString() || '0'}
-          subtitulo="Vendas realizadas"
-          icon={ShoppingCart}
-          carregandoInformacao={isLoading}
-        />
-        <IndicadorInfo
-          titulo="Valor Total"
-          info={`R$ ${(estatisticas?.valor_total_vendas || 0).toLocaleString('pt-BR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`}
-          subtitulo="Receita total"
-          icon={DollarSign}
-          carregandoInformacao={isLoading}
-          className="border-l-4 border-l-green-500"
-        />
-        <IndicadorInfo
           titulo="Total de Clientes"
-          info={estatisticas?.total_clientes?.toString() || '0'}
-          subtitulo="Clientes ativos"
+          info={totalClientes?.totalClientes?.toString() || '0'}
+          subtitulo="Clientes cadastrados"
           icon={Users}
-          carregandoInformacao={isLoading}
+          carregandoInformacao={isLoadingTotalClientes}
+          className="border-l-4 border-l-primary"
         />
         <IndicadorInfo
           titulo="Total de Produtos"
-          info={estatisticas?.total_produtos?.toString() || '0'}
-          subtitulo="Produtos cadastrados"
+          info={totalProdutos?.totalProdutos?.toString() || '0'}
+          subtitulo="Produtos/Serviços cadastrados"
           icon={Package}
-          carregandoInformacao={isLoading}
+          carregandoInformacao={isLoadingTotalProdutos}
+          className="border-l-4 border-l-primary"
+        />
+        <IndicadorInfo
+          titulo="Cliente Top"
+          info={clienteTop?.totalVendas?.toString() || '0'}
+          subtitulo={clienteTop?.cliente || 'Nenhum cliente'}
+          icon={Users}
+          carregandoInformacao={isLoadingClienteTop}
+          className="border-l-4 border-l-blue-500"
+        />
+        <IndicadorInfo
+          titulo="Produto Top"
+          info={produtoTop?.totalVendido?.toString() || '0'}
+          subtitulo={produtoTop?.nome || 'Nenhum produto'}
+          icon={ShoppingCart}
+          carregandoInformacao={isLoadingProdutoTop}
+          className="border-l-4 border-l-yellow-500"
         />
       </div>
 
@@ -220,9 +150,8 @@ export default function VendasPage() {
       <div>
         <h2 className="text-xl font-semibold mb-4">Destaques</h2>
         <EstatisticasVendasCard 
-          dados={estatisticas} 
-          topProdutos={topProdutos}
-          topClientes={topClientes}
+          clienteTop={clienteTop}
+          produtoTop={produtoTop}
           isLoading={isLoading} 
         />
       </div>

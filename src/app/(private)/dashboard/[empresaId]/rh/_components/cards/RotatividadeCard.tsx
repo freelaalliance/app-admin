@@ -15,17 +15,18 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 interface RotatividadeCardProps {
   empresaId: string
-  dados: DadosRotatividade[]
+  dados?: DadosRotatividade
   isLoading?: boolean
-  onPeriodoChange: (periodo: string) => void
+  onPeriodoChange: (periodo: 'mes' | 'trimestre' | 'semestre' | 'anual') => void
 }
 
 export function RotatividadeCard({ empresaId, dados, isLoading, onPeriodoChange }: RotatividadeCardProps) {
-  const [periodoSelecionado, setPeriodoSelecionado] = useState('mensal')
+  const [periodoSelecionado, setPeriodoSelecionado] = useState<'mes' | 'trimestre' | 'semestre' | 'anual'>('mes')
 
   const handlePeriodoChange = (valor: string) => {
-    setPeriodoSelecionado(valor)
-    onPeriodoChange(valor)
+    const periodo = valor as 'mes' | 'trimestre' | 'semestre' | 'anual'
+    setPeriodoSelecionado(periodo)
+    onPeriodoChange(periodo)
   }
 
   if (isLoading) {
@@ -36,7 +37,7 @@ export function RotatividadeCard({ empresaId, dados, isLoading, onPeriodoChange 
     )
   }
 
-  if (dados.length === 0) {
+  if (!dados) {
     return (
       <Card className="p-8 text-center">
         <p className="text-muted-foreground">Nenhum dado de rotatividade disponível.</p>
@@ -44,26 +45,62 @@ export function RotatividadeCard({ empresaId, dados, isLoading, onPeriodoChange 
     )
   }
 
+  // Converte o objeto único em array para o gráfico
+  const chartData = [
+    {
+      categoria: 'Admissões',
+      valor: dados.admissoes,
+    },
+    {
+      categoria: 'Demissões',
+      valor: dados.demissoes,
+    },
+  ]
+
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold">Análise de Rotatividade</h3>
+        <div>
+          <h3 className="text-lg font-semibold">Análise de Rotatividade</h3>
+          <p className="text-sm text-muted-foreground">
+            Taxa de rotatividade: <span className="font-bold">{dados.taxaRotatividade}%</span>
+          </p>
+        </div>
         <Select value={periodoSelecionado} onValueChange={handlePeriodoChange}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Selecione o período" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="mensal">Mensal</SelectItem>
-            <SelectItem value="trimestral">Trimestral</SelectItem>
+            <SelectItem value="mes">Mensal</SelectItem>
+            <SelectItem value="trimestre">Trimestral</SelectItem>
+            <SelectItem value="semestre">Semestral</SelectItem>
             <SelectItem value="anual">Anual</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="text-center p-4 bg-muted/50 rounded-lg">
+          <p className="text-sm text-muted-foreground">Início do Período</p>
+          <p className="text-2xl font-bold">{dados.colaboradoresInicio}</p>
+          <p className="text-xs text-muted-foreground">Colaboradores</p>
+        </div>
+        <div className="text-center p-4 bg-muted/50 rounded-lg">
+          <p className="text-sm text-muted-foreground">Fim do Período</p>
+          <p className="text-2xl font-bold">{dados.colaboradoresFim}</p>
+          <p className="text-xs text-muted-foreground">Colaboradores</p>
+        </div>
+        <div className="text-center p-4 bg-primary/10 rounded-lg">
+          <p className="text-sm text-muted-foreground">Taxa de Rotatividade</p>
+          <p className="text-2xl font-bold text-primary">{dados.taxaRotatividade}%</p>
+          <p className="text-xs text-muted-foreground">No período</p>
+        </div>
+      </div>
+
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={dados}>
+        <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="periodo" tick={{ fontSize: 12 }} />
+          <XAxis dataKey="categoria" tick={{ fontSize: 12 }} />
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip 
             contentStyle={{ 
@@ -73,9 +110,7 @@ export function RotatividadeCard({ empresaId, dados, isLoading, onPeriodoChange 
             }}
           />
           <Legend />
-          <Bar dataKey="admissoes" fill="hsl(var(--chart-1))" name="Admissões" />
-          <Bar dataKey="demissoes" fill="hsl(var(--chart-2))" name="Demissões" />
-          <Bar dataKey="rotatividade_percentual" fill="hsl(var(--chart-3))" name="Rotatividade %" />
+          <Bar dataKey="valor" fill="hsl(var(--chart-1))" name="Quantidade" />
         </BarChart>
       </ResponsiveContainer>
     </Card>

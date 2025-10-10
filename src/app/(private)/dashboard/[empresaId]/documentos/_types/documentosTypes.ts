@@ -3,42 +3,41 @@
 export type Categoria = {
   id: string
   nome: string
-  cor?: string
+  descricao: string
+  empresaId: string
+  criadoEm: Date | string
+  atualizadoEm: Date | string
 }
 
 export type Documento = {
   id: string
-  titulo: string
-  descricao?: string
-  categoria: string
-  categoria_nome?: string
-  revisao: number
-  data_criacao: string
-  data_atualizacao: string
-  arquivo_url: string
-  arquivo_nome: string
-  tamanho_bytes: number
-  tipo_arquivo: string
-  status: 'ativo' | 'arquivado' | 'obsoleto'
-  criado_por?: string
-  atualizado_por?: string
+  nome: string
+  descricaoDocumento: string
+  copias: string
+  recuperacao: string
+  elegibilidade: string
+  disposicao: string
+  retencao: string
+  uso: string
+  categoriaDocumentoNome: string
+  empresaId: string
+  revisoes: Array<{
+    id: string
+    numeroRevisao: number
+    revisadoEm: Date | string
+    arquivoId: string
+    arquivoNome: string
+    arquivoUrl: string
+    usuario: string
+  }>
 }
 
-export type DadosDocumentos = {
-  documentos: Documento[]
-  total: number
-  categorias: Categoria[]
-}
+export type DadosDocumentos = Documento[]
 
 export type DadosUsuario = {
+  id: string
   nome: string
   email: string
-  avatar_url?: string
 }
 
-export type EstatisticasDocumentos = {
-  total_documentos: number
-  documentos_ativos: number
-  documentos_arquivados: number
-  total_categorias: number
-}
+export type DadosUsuarios = DadosUsuario[]

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useCompras, useResumoCompras } from '../../_hooks/useComprasData'
+import { useResumoCompras, usePedidos } from '../../_hooks/useComprasData'
 import { ShoppingCart, CheckCircle, Clock, XCircle } from 'lucide-react'
 import { IndicadorInfo } from '@/components/shared/IndicadorInfo'
 import { format } from 'date-fns'
@@ -14,40 +14,30 @@ interface ComprasTabProps {
   empresaId: string
 }
 
-const statusConfig = {
-  pendente: { label: 'Pendente', variant: 'secondary' as const, icon: Clock },
-  em_andamento: { label: 'Em Andamento', variant: 'default' as const, icon: ShoppingCart },
-  concluido: { label: 'Concluído', variant: 'outline' as const, icon: CheckCircle },
-  cancelado: { label: 'Cancelado', variant: 'destructive' as const, icon: XCircle },
-}
-
 export default function ComprasTab({ empresaId }: ComprasTabProps) {
   const [dataInicio] = useState<string>()
   const [dataFim] = useState<string>()
 
-  const { data: resumoData, isLoading: isLoadingResumo } = useResumoCompras(empresaId)
-  const { data: comprasData, isLoading: isLoadingCompras } = useCompras(
+  const { data: resumo, isLoading: isLoadingResumo } = useResumoCompras(empresaId)
+  const { data: pedidos, isLoading: isLoadingPedidos } = usePedidos(
     empresaId,
     dataInicio,
     dataFim
   )
 
-  const resumo = resumoData?.resumo
-  const compras = comprasData?.compras || []
-
   return (
     <div className="space-y-6">
       {/* Cards de Resumo */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <IndicadorInfo
           titulo="Total de Pedidos"
-          info={resumo?.total_pedidos?.toString() || '0'}
+          info={resumo?.totalPedidos?.toString() || '0'}
           icon={ShoppingCart}
           carregandoInformacao={isLoadingResumo}
         />
         <IndicadorInfo
           titulo="Valor Total"
-          info={`R$ ${(resumo?.valor_total || 0).toLocaleString('pt-BR', {
+          info={`R$ ${(resumo?.valorTotalPedidos || 0).toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}`}
@@ -56,84 +46,109 @@ export default function ComprasTab({ empresaId }: ComprasTabProps) {
         />
         <IndicadorInfo
           titulo="Pedidos Pendentes"
-          info={resumo?.pedidos_pendentes?.toString() || '0'}
-          subtitulo="Aguardando processamento"
+          info={resumo?.pedidosPendentes?.toString() || '0'}
+          subtitulo="Aguardando recebimento"
           icon={Clock}
           carregandoInformacao={isLoadingResumo}
+          className="border-l-4 border-l-yellow-500"
         />
         <IndicadorInfo
-          titulo="Pedidos Concluídos"
-          info={resumo?.pedidos_concluidos?.toString() || '0'}
-          subtitulo="Finalizados com sucesso"
+          titulo="Pedidos Recebidos"
+          info={resumo?.pedidosRecebidos?.toString() || '0'}
+          subtitulo="Já recebidos"
           icon={CheckCircle}
+          carregandoInformacao={isLoadingResumo}
+          className="border-l-4 border-l-green-500"
+        />
+        <IndicadorInfo
+          titulo="Pedidos Cancelados"
+          info={resumo?.pedidosCancelados?.toString() || '0'}
+          subtitulo="Cancelados"
+          icon={XCircle}
+          carregandoInformacao={isLoadingResumo}
+          className="border-l-4 border-l-red-500"
+        />
+        <IndicadorInfo
+          titulo="Pedidos no Mês"
+          info={resumo?.pedidosNoMes?.toString() || '0'}
+          subtitulo="Mês atual"
+          icon={ShoppingCart}
           carregandoInformacao={isLoadingResumo}
         />
       </div>
 
-      {/* Lista de Compras */}
+      {/* Lista de Pedidos */}
       <Card>
         <CardHeader>
-          <CardTitle>Histórico de Compras</CardTitle>
+          <CardTitle>Pedidos de Compra</CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoadingCompras ? (
+          {isLoadingPedidos ? (
             <div className="space-y-3">
               {[1, 2, 3, 4, 5].map((i) => (
                 <Skeleton key={i} className="h-20 w-full" />
               ))}
             </div>
-          ) : compras.length > 0 ? (
+          ) : pedidos && pedidos.length > 0 ? (
             <div className="space-y-3">
-              {compras.map((compra) => {
-                const config = statusConfig[compra.status]
-                const StatusIcon = config.icon
+              {pedidos.map((pedido) => {
+                const recebido = pedido.recebido
+                const cancelado = pedido.cancelado
+                const pendente = !recebido && !cancelado
 
                 return (
                   <div
-                    key={compra.id}
+                    key={pedido.id}
                     className="flex items-start justify-between p-4 border rounded-lg hover:bg-accent transition-colors"
                   >
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-medium">Pedido #{compra.numero_pedido}</h4>
-                        <Badge variant={config.variant}>
-                          <StatusIcon className="h-3 w-3 mr-1" />
-                          {config.label}
-                        </Badge>
+                        <h4 className="font-medium">Pedido #{pedido.numPedido}</h4>
+                        <span className="text-sm text-muted-foreground">({pedido.codigo})</span>
+                        {cancelado && (
+                          <Badge variant="destructive">
+                            <XCircle className="h-3 w-3 mr-1" />
+                            Cancelado
+                          </Badge>
+                        )}
+                        {recebido && (
+                          <Badge variant="outline">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Recebido
+                          </Badge>
+                        )}
+                        {pendente && (
+                          <Badge variant="secondary">
+                            <Clock className="h-3 w-3 mr-1" />
+                            Pendente
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        <strong>Fornecedor:</strong> {compra.fornecedor}
+                        <strong>Fornecedor:</strong> {pedido.fornecedor.nome} ({pedido.fornecedor.documento})
                       </p>
                       <div className="flex gap-4 text-sm text-muted-foreground">
                         <span>
-                          <strong>Pedido:</strong>{' '}
-                          {format(new Date(compra.data_pedido), 'dd/MM/yyyy', { locale: ptBR })}
+                          <strong>Prazo:</strong>{' '}
+                          {format(new Date(pedido.prazoEntrega), 'dd/MM/yyyy', { locale: ptBR })}
                         </span>
-                        {compra.data_entrega && (
-                          <span>
-                            <strong>Entrega:</strong>{' '}
-                            {format(new Date(compra.data_entrega), 'dd/MM/yyyy', {
-                              locale: ptBR,
-                            })}
-                          </span>
-                        )}
                         <span>
-                          <strong>Itens:</strong> {compra.itens}
+                          <strong>Cadastro:</strong>{' '}
+                          {format(new Date(pedido.cadastro.dataCadastro), 'dd/MM/yyyy', {
+                            locale: ptBR,
+                          })}
+                        </span>
+                        <span>
+                          <strong>Entrega parcial:</strong> {pedido.permiteEntregaParcial ? 'Sim' : 'Não'}
                         </span>
                       </div>
-                      {compra.observacoes && (
-                        <p className="text-sm text-muted-foreground italic">
-                          {compra.observacoes}
+                      {pedido.condicoesEntrega && (
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Condições:</strong> {pedido.condicoesEntrega}
                         </p>
                       )}
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold">
-                        R${' '}
-                        {compra.valor_total.toLocaleString('pt-BR', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                      <p className="text-xs text-muted-foreground">
+                        Cadastrado por: {pedido.cadastro.usuario}
                       </p>
                     </div>
                   </div>
@@ -142,7 +157,7 @@ export default function ComprasTab({ empresaId }: ComprasTabProps) {
             </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              Nenhuma compra encontrada
+              Nenhum pedido encontrado
             </div>
           )}
         </CardContent>

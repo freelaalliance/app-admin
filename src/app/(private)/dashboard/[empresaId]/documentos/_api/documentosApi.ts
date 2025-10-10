@@ -1,16 +1,16 @@
 // API calls para o módulo de Documentos
 import { axiosInstance } from '@/lib/axios'
-import type { DadosDocumentos, DadosUsuario, Categoria } from '../_types/documentosTypes'
+import type { DadosDocumentos, DadosUsuarios, Categoria } from '../_types/documentosTypes'
 
 export const documentosApi = {
-  // GET /admin/documentos/empresas/:empresaId/permissoes/usuarios - Usuários com acesso
-  getUsuario: async (empresaId: string) => {
+  // GET /admin/documentos/empresas/:empresaId - Lista de documentos da empresa
+  getDocumentos: async (empresaId: string) => {
     const { data } = await axiosInstance.get<{
       status: boolean
-      msg: string
-      dados: DadosUsuario
+      msg?: string
+      dados: DadosDocumentos
       erro?: string | null
-    }>(`/admin/documentos/empresas/${empresaId}/permissoes/usuarios`)
+    }>(`/admin/documentos/empresas/${empresaId}`)
     return data.dados
   },
 
@@ -18,24 +18,21 @@ export const documentosApi = {
   getCategorias: async (empresaId: string) => {
     const { data } = await axiosInstance.get<{
       status: boolean
-      msg: string
+      msg?: string
       dados: Categoria[]
       erro?: string | null
     }>(`/admin/documentos/empresas/${empresaId}/categorias`)
     return data.dados
   },
 
-  // GET /admin/documentos/empresas/:empresaId - Lista de documentos da empresa
-  getDocumentos: async (empresaId: string, categoriaId?: string) => {
-    const params = new URLSearchParams()
-    if (categoriaId) params.append('categoria_id', categoriaId)
-
+  // GET /admin/documentos/empresas/:empresaId/permissoes/usuarios - Usuários com acesso
+  getUsuarios: async (empresaId: string) => {
     const { data } = await axiosInstance.get<{
       status: boolean
-      msg: string
-      dados: DadosDocumentos
+      msg?: string
+      dados: DadosUsuarios
       erro?: string | null
-    }>(`/admin/documentos/empresas/${empresaId}?${params.toString()}`)
+    }>(`/admin/documentos/empresas/${empresaId}/permissoes/usuarios`)
     return data.dados
   },
 }

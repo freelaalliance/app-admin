@@ -1,30 +1,19 @@
 // Types para o módulo de Vendas
 
-export type EstatisticasVendas = {
-  total_vendas: number
-  total_clientes: number
-  total_produtos: number
-  produto_mais_vendido: string
-  cliente_maior_comprador: string
-  valor_total_vendas: number
+export type ClienteTop = {
+  totalVendas: number
+  cliente: string
 }
 
-export type TopProduto = {
-  id: string
+export type ProdutoTop = {
+  totalVendido: number
   nome: string
-  quantidade_vendida: number
-  valor_total: number
 }
 
-export type TopCliente = {
-  id: string
-  nome: string
-  total_compras: number
-  valor_total: number
+export type TotalClientes = {
+  totalClientes: number
 }
 
-export type DadosVendas = {
-  estatisticas: EstatisticasVendas
-  top_produtos: TopProduto[]
-  top_clientes: TopCliente[]
+export type TotalProdutos = {
+  totalProdutos: number
 }

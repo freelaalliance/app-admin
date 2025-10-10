@@ -1,63 +1,81 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  getEquipamentos,
-  getIndicadores,
-  getInspecoes,
   getManutencoes,
-  getDadosGraficoDuracao
+  getDuracoes,
+  getEstatisticasStatus,
+  getEstatisticasGerais,
+  getIndicadoresEquipamento,
+  getIndicadoresEquipamentos
 } from '../_api/manutencaoApi'
 
 // Query Keys Factory
 export const manutencaoKeys = {
   all: ['manutencao'] as const,
-  equipamentos: (empresaId: string) => [...manutencaoKeys.all, 'equipamentos', empresaId] as const,
-  indicadores: (empresaId: string, equipamentoId?: number) =>
-    [...manutencaoKeys.all, 'indicadores', empresaId, equipamentoId] as const,
-  inspecoes: (empresaId: string, equipamentoId?: number) =>
-    [...manutencaoKeys.all, 'inspecoes', empresaId, equipamentoId] as const,
-  manutencoes: (empresaId: string, equipamentoId?: number) =>
+  manutencoes: (empresaId: string, equipamentoId: string) =>
     [...manutencaoKeys.all, 'manutencoes', empresaId, equipamentoId] as const,
-  graficoDuracao: (empresaId: string) =>
-    [...manutencaoKeys.all, 'graficoDuracao', empresaId] as const,
+  duracoes: (empresaId: string, equipamentoId: string) =>
+    [...manutencaoKeys.all, 'duracoes', empresaId, equipamentoId] as const,
+  estatisticasStatus: (empresaId: string) =>
+    [...manutencaoKeys.all, 'estatisticas-status', empresaId] as const,
+  estatisticasGerais: (empresaId: string) =>
+    [...manutencaoKeys.all, 'estatisticas-gerais', empresaId] as const,
+  indicadoresEquipamento: (empresaId: string, equipamentoId?: string) =>
+    [...manutencaoKeys.all, 'indicadores-equipamento', empresaId, equipamentoId] as const,
+  indicadoresEquipamentos: (empresaId: string) =>
+    [...manutencaoKeys.all, 'indicadores-equipamentos', empresaId] as const,
 }
 
-export function useEquipamentos(empresaId: string) {
-  return useQuery({
-    queryKey: manutencaoKeys.equipamentos(empresaId),
-    queryFn: () => getEquipamentos(empresaId),
-    staleTime: 5 * 60 * 1000, // 5 minutos
-  })
-}
-
-export function useIndicadores(empresaId: string, equipamentoId?: number) {
-  return useQuery({
-    queryKey: manutencaoKeys.indicadores(empresaId, equipamentoId),
-    queryFn: () => getIndicadores(empresaId, equipamentoId),
-    staleTime: 5 * 60 * 1000, // 5 minutos
-  })
-}
-
-export function useInspecoes(empresaId: string, equipamentoId?: number) {
-  return useQuery({
-    queryKey: manutencaoKeys.inspecoes(empresaId, equipamentoId),
-    queryFn: () => getInspecoes(empresaId, equipamentoId),
-    staleTime: 5 * 60 * 1000, // 5 minutos
-  })
-}
-
-export function useManutencoes(empresaId: string, equipamentoId?: number) {
+export function useManutencoes(empresaId: string, equipamentoId: string) {
   return useQuery({
     queryKey: manutencaoKeys.manutencoes(empresaId, equipamentoId),
     queryFn: () => getManutencoes(empresaId, equipamentoId),
+    enabled: !!empresaId && !!equipamentoId,
     staleTime: 5 * 60 * 1000, // 5 minutos
   })
 }
 
-export function useDadosGraficoDuracao(empresaId: string) {
+export function useDuracoes(empresaId: string, equipamentoId: string) {
   return useQuery({
-    queryKey: manutencaoKeys.graficoDuracao(empresaId),
-    queryFn: () => getDadosGraficoDuracao(empresaId),
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    queryKey: manutencaoKeys.duracoes(empresaId, equipamentoId),
+    queryFn: () => getDuracoes(empresaId, equipamentoId),
+    enabled: !!empresaId && !!equipamentoId,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useEstatisticasStatus(empresaId: string) {
+  return useQuery({
+    queryKey: manutencaoKeys.estatisticasStatus(empresaId),
+    queryFn: () => getEstatisticasStatus(empresaId),
+    enabled: !!empresaId,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useEstatisticasGerais(empresaId: string) {
+  return useQuery({
+    queryKey: manutencaoKeys.estatisticasGerais(empresaId),
+    queryFn: () => getEstatisticasGerais(empresaId),
+    enabled: !!empresaId,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useIndicadoresEquipamento(empresaId: string, equipamentoId?: string) {
+  return useQuery({
+    queryKey: manutencaoKeys.indicadoresEquipamento(empresaId, equipamentoId),
+    queryFn: () => getIndicadoresEquipamento(empresaId, equipamentoId),
+    enabled: !!empresaId,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useIndicadoresEquipamentos(empresaId: string) {
+  return useQuery({
+    queryKey: manutencaoKeys.indicadoresEquipamentos(empresaId),
+    queryFn: () => getIndicadoresEquipamentos(empresaId),
+    enabled: !!empresaId,
+    staleTime: 5 * 60 * 1000,
   })
 }
 

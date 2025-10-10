@@ -1,70 +1,98 @@
 import { axiosInstance } from '@/lib/axios'
 import type {
-  Equipamento,
-  IndicadoresManutencao,
-  Inspecao,
   Manutencao,
-  DadosGraficoDuracao
+  DuracaoManutencao,
+  EstatisticasStatus,
+  EstatisticasGerais,
+  IndicadoresManutencao,
+  IndicadoresEquipamentos
 } from '../_types/manutencaoTypes'
 
-export async function getEquipamentos(empresaId: string): Promise<{ equipamentos: Equipamento[] }> {
-  const { data } = await axiosInstance.get<{ equipamentos: Equipamento[] }>(
-    `/admin/manutencao/empresas/${empresaId}/equipamentos`
-  )
-  return data
-}
-
-export async function getIndicadores(
-  empresaId: string,
-  equipamentoId?: number
-): Promise<IndicadoresManutencao> {
-  const params = new URLSearchParams()
-  if (equipamentoId) params.append('equipamento_id', equipamentoId.toString())
-
-  const endpoint = equipamentoId
-    ? `/admin/manutencao/empresas/${empresaId}/indicadores/equipamento`
-    : `/admin/manutencao/empresas/${empresaId}/indicadores/equipamentos`
-
-  const { data } = await axiosInstance.get<IndicadoresManutencao>(
-    `${endpoint}?${params.toString()}`
-  )
-  return data
-}
-
-export async function getInspecoes(
-  empresaId: string,
-  equipamentoId?: number
-): Promise<{ inspecoes: Inspecao[] }> {
-  const params = new URLSearchParams()
-  if (equipamentoId) params.append('equipamento_id', equipamentoId.toString())
-
-  const { data } = await axiosInstance.get<{ inspecoes: Inspecao[] }>(
-    `/admin/manutencao/empresas/${empresaId}/equipamento/${equipamentoId}?${params.toString()}`
-  )
-  return data
-}
-
+// GET /admin/manutencao/empresas/:empresaId/equipamento/:idEquipamento - Manutenções de um equipamento
 export async function getManutencoes(
   empresaId: string,
-  equipamentoId?: number
-): Promise<{ manutencoes: Manutencao[] }> {
-  const params = new URLSearchParams()
-  if (equipamentoId) params.append('equipamento_id', equipamentoId.toString())
-
-  const { data } = await axiosInstance.get<{ manutencoes: Manutencao[] }>(
-    `/admin/manutencao/empresas/${empresaId}/equipamento/${equipamentoId}?${params.toString()}`
-  )
-  return data
+  equipamentoId: string
+): Promise<Manutencao[]> {
+  const { data } = await axiosInstance.get<{
+    status: boolean
+    msg?: string
+    dados: Manutencao[]
+    erro?: string | null
+  }>(`/admin/manutencao/empresas/${empresaId}/equipamento/${equipamentoId}`)
+  return data.dados
 }
 
-export async function getDadosGraficoDuracao(
+// GET /admin/manutencao/empresas/:empresaId/equipamento/:idEquipamento/duracao - Durações
+export async function getDuracoes(
   empresaId: string,
-  equipamentoId?: number
-): Promise<{ dados: DadosGraficoDuracao[] }> {
-  const endpoint = equipamentoId
-    ? `/admin/manutencao/empresas/${empresaId}/equipamento/${equipamentoId}/duracao`
-    : `/admin/manutencao/empresas/${empresaId}/estatisticas`
+  equipamentoId: string
+): Promise<DuracaoManutencao[]> {
+  const { data } = await axiosInstance.get<{
+    status: boolean
+    msg?: string
+    dados: DuracaoManutencao[]
+    erro?: string | null
+  }>(`/admin/manutencao/empresas/${empresaId}/equipamento/${equipamentoId}/duracao`)
+  return data.dados
+}
 
-  const { data } = await axiosInstance.get<{ dados: DadosGraficoDuracao[] }>(endpoint)
-  return data
+// GET /admin/manutencao/empresas/:empresaId/estatisticas/status - Status dos equipamentos
+export async function getEstatisticasStatus(
+  empresaId: string
+): Promise<EstatisticasStatus> {
+  const { data } = await axiosInstance.get<{
+    status: boolean
+    msg?: string
+    dados: EstatisticasStatus
+    erro?: string | null
+  }>(`/admin/manutencao/empresas/${empresaId}/estatisticas/status`)
+  return data.dados
+}
+
+// GET /admin/manutencao/empresas/:empresaId/estatisticas - Estatísticas gerais
+export async function getEstatisticasGerais(
+  empresaId: string
+): Promise<EstatisticasGerais> {
+  const { data } = await axiosInstance.get<{
+    status: boolean
+    msg?: string
+    dados: EstatisticasGerais
+    erro?: string | null
+  }>(`/admin/manutencao/empresas/${empresaId}/estatisticas`)
+  return data.dados
+}
+
+// GET /admin/manutencao/empresas/:empresaId/indicadores/equipamento - Indicadores de equipamento
+export async function getIndicadoresEquipamento(
+  empresaId: string,
+  equipamentoId?: string
+): Promise<IndicadoresManutencao> {
+  const params = new URLSearchParams()
+  if (equipamentoId) params.append('equipamentoId', equipamentoId)
+
+  const queryString = params.toString()
+  const url = queryString
+    ? `/admin/manutencao/empresas/${empresaId}/indicadores/equipamento?${queryString}`
+    : `/admin/manutencao/empresas/${empresaId}/indicadores/equipamento`
+
+  const { data } = await axiosInstance.get<{
+    status: boolean
+    msg?: string
+    dados: IndicadoresManutencao
+    erro?: string | null
+  }>(url)
+  return data.dados
+}
+
+// GET /admin/manutencao/empresas/:empresaId/indicadores/equipamentos - Indicadores de todos equipamentos
+export async function getIndicadoresEquipamentos(
+  empresaId: string
+): Promise<IndicadoresEquipamentos[]> {
+  const { data } = await axiosInstance.get<{
+    status: boolean
+    msg?: string
+    dados: IndicadoresEquipamentos[]
+    erro?: string | null
+  }>(`/admin/manutencao/empresas/${empresaId}/indicadores/equipamentos`)
+  return data.dados
 }

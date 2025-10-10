@@ -8,8 +8,8 @@ const comprasKeys = {
   lists: () => [...comprasKeys.all, 'list'] as const,
   list: (empresaId: string) => [...comprasKeys.lists(), empresaId] as const,
   resumo: (empresaId: string) => [...comprasKeys.all, 'resumo', empresaId] as const,
-  filtered: (empresaId: string, dataInicio?: string, dataFim?: string) =>
-    [...comprasKeys.list(empresaId), { dataInicio, dataFim }] as const,
+  pedidos: (empresaId: string, dataInicial?: string, dataFinal?: string) =>
+    [...comprasKeys.list(empresaId), 'pedidos', { dataInicial, dataFinal }] as const,
 }
 
 // Hook para resumo de compras
@@ -22,15 +22,15 @@ export function useResumoCompras(empresaId: string | undefined) {
   })
 }
 
-// Hook para lista de compras com filtro de data
-export function useCompras(
+// Hook para lista de pedidos com filtro de data
+export function usePedidos(
   empresaId: string | undefined,
-  dataInicio?: string,
-  dataFim?: string
+  dataInicial?: string,
+  dataFinal?: string
 ) {
   return useQuery({
-    queryKey: comprasKeys.filtered(empresaId ?? '', dataInicio, dataFim),
-    queryFn: () => comprasApi.getCompras(empresaId!, dataInicio, dataFim),
+    queryKey: comprasKeys.pedidos(empresaId ?? '', dataInicial, dataFinal),
+    queryFn: () => comprasApi.getPedidos(empresaId!, dataInicial, dataFinal),
     enabled: !!empresaId,
     staleTime: 5 * 60 * 1000,
   })
@@ -44,7 +44,7 @@ export function useInvalidateCompras() {
     invalidateAll: () => queryClient.invalidateQueries({ queryKey: comprasKeys.all }),
     invalidateResumo: (empresaId: string) =>
       queryClient.invalidateQueries({ queryKey: comprasKeys.resumo(empresaId) }),
-    invalidateLista: (empresaId: string) =>
+    invalidatePedidos: (empresaId: string) =>
       queryClient.invalidateQueries({ queryKey: comprasKeys.list(empresaId) }),
   }
 }

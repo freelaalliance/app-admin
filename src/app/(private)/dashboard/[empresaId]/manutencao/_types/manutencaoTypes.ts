@@ -1,48 +1,54 @@
 export interface Equipamento {
-  id: number
+  id: string
   nome: string
   codigo: string
-  tipo: string
-  localizacao: string
 }
 
 export interface IndicadoresManutencao {
-  mttr: number // Mean Time To Repair (horas)
-  mtbf: number // Mean Time Between Failures (horas)
-  total_manutencoes: number
-  manutencoes_preventivas: number
-  manutencoes_corretivas: number
-  equipamentos_em_manutencao: number
+  total_tempo_parado: number // em minutos
+  qtd_manutencoes: number
+  total_tempo_operacao: number // em minutos
 }
 
-export interface Inspecao {
-  id: number
-  equipamento_id: number
-  equipamento_nome: string
-  tipo: 'diaria' | 'semanal' | 'mensal' | 'trimestral' | 'anual'
-  data_programada: string
-  data_realizada?: string
-  status: 'pendente' | 'realizada' | 'atrasada'
-  responsavel: string
-  observacoes?: string
+export interface IndicadoresEquipamentos extends IndicadoresManutencao {
+  nome: string
+}
+
+export interface EstatisticasStatus {
+  qtd_equipamentos_parados: number
+  qtd_equipamentos_funcionando: number
+}
+
+export interface EstatisticasGerais {
+  qtd_equipamentos_manutencao_em_dia: number
+  media_duracao: number // em minutos
+  total_duracao_manutencoes: number // em minutos
+  qtd_manutencoes_realizadas: number
 }
 
 export interface Manutencao {
-  id: number
-  equipamento_id: number
-  equipamento_nome: string
-  tipo: 'preventiva' | 'corretiva' | 'preditiva'
-  data_inicio: string
-  data_fim?: string
-  duracao_horas?: number
-  status: 'em_andamento' | 'concluida' | 'cancelada'
-  tecnico: string
+  id: string
+  tipo: 'PREVENTIVA' | 'CORRETIVA'
   descricao: string
-  custo?: number
+  observacao: string | null
+  dataInicio: Date | string
+  dataFim: Date | string | null
+  duracao: number | null
+  status: 'PENDENTE' | 'EM_ANDAMENTO' | 'CONCLUIDA' | 'CANCELADA'
+  equipamento: {
+    id: string
+    nome: string
+    codigo: string
+  }
+  usuario: {
+    nome: string
+  }
 }
 
-export interface DadosGraficoDuracao {
-  equipamento: string
-  duracao_media: number
-  manutencoes: number
+export interface DuracaoManutencao {
+  id: string
+  tipo: string
+  duracao: number // em minutos
+  dataInicio: Date | string
+  dataFim: Date | string
 }

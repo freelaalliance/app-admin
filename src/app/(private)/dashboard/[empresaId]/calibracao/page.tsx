@@ -7,9 +7,9 @@ import { CalendarioEventos } from '@/components/shared/CalendarioEventos'
 import { EstatisticasCard } from './_components/cards/EstatisticasCard'
 import { HistoricoList } from './_components/HistoricoList'
 import {
-    useEstatisticasCalibracao,
-    useAgendaCalibracao,
-    useHistoricoCalibracao,
+  useEstatisticasCalibracao,
+  useAgendaCalibracao,
+  useHistoricoCalibracao,
 } from './_hooks/useCalibracoesData'
 import { format } from 'date-fns'
 
@@ -31,10 +31,10 @@ export default function CalibracoesPage() {
     id: item.id,
     allDay: true,
     title: `${item.codigo} - ${item.nome}`,
-    start: new Date(item.agendadoPara),
-    backgroundColor: '#027435',
+    start: new Date(item.proximaCalibracao),
+    backgroundColor: item.status === 'vencido' ? '#dc2626' : item.status === 'vencendo' ? '#f59e0b' : '#027435',
     textColor: '#fff',
-    borderColor: '#027435',
+    borderColor: item.status === 'vencido' ? '#dc2626' : item.status === 'vencendo' ? '#f59e0b' : '#027435',
   })) ?? []
 
   const handleExportPDF = () => {
@@ -99,16 +99,33 @@ export default function CalibracoesPage() {
         const agendaData = agenda.map((item) => ({
           codigo: item.codigo,
           instrumento: item.nome,
-          agendado: format(new Date(item.agendadoPara), 'dd/MM/yyyy'),
+          agendado: format(new Date(item.proximaCalibracao), 'dd/MM/yyyy'),
+          status: item.status === 'vencido' ? 'Vencido' : item.status === 'vencendo' ? 'Vencendo' : 'Em Dia',
+          diasRestantes: item.diasRestantes,
         }))
 
         doc.autoTable({
           startY: currentY,
-          head: [['Código', 'Instrumento', 'Data Agendada']],
-          body: agendaData.map((a) => [a.codigo, a.instrumento, a.agendado]),
+          head: [['Código', 'Instrumento', 'Data Agendada', 'Status', 'Dias Restantes']],
+          body: agendaData.map((a) => [a.codigo, a.instrumento, a.agendado, a.status, a.diasRestantes.toString()]),
           theme: 'grid',
           headStyles: { fillColor: [2, 116, 53] },
           margin: { left: 14, right: 14 },
+          didParseCell: function(data: any) {
+            // Colorir status
+            if (data.column.index === 3 && data.cell.section === 'body') {
+              if (data.cell.raw === 'Vencido') {
+                data.cell.styles.textColor = [220, 38, 38] // Vermelho
+                data.cell.styles.fontStyle = 'bold'
+              } else if (data.cell.raw === 'Vencendo') {
+                data.cell.styles.textColor = [245, 158, 11] // Laranja
+                data.cell.styles.fontStyle = 'bold'
+              } else if (data.cell.raw === 'Em Dia') {
+                data.cell.styles.textColor = [2, 116, 53] // Verde
+                data.cell.styles.fontStyle = 'bold'
+              }
+            }
+          }
         })
 
         currentY = (doc as any).lastAutoTable.finalY + 15

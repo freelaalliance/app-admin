@@ -5,47 +5,47 @@ import { vendasApi } from '../_api/vendasApi'
 // Query Keys Factory
 const vendasKeys = {
   all: ['vendas'] as const,
-  estatisticas: (empresaId: string) => [...vendasKeys.all, 'estatisticas', empresaId] as const,
-  topProdutos: (empresaId: string) => [...vendasKeys.all, 'top-produtos', empresaId] as const,
-  topClientes: (empresaId: string) => [...vendasKeys.all, 'top-clientes', empresaId] as const,
-  total: (empresaId: string) => [...vendasKeys.all, 'total', empresaId] as const,
+  clienteTop: (empresaId: string) => [...vendasKeys.all, 'cliente-top', empresaId] as const,
+  produtoTop: (empresaId: string) => [...vendasKeys.all, 'produto-top', empresaId] as const,
+  totalClientes: (empresaId: string) => [...vendasKeys.all, 'total-clientes', empresaId] as const,
+  totalProdutos: (empresaId: string) => [...vendasKeys.all, 'total-produtos', empresaId] as const,
 }
 
-// Hook para estatísticas de vendas
-export function useEstatisticasVendas(empresaId: string | undefined) {
+// Hook para cliente top
+export function useClienteTop(empresaId: string | undefined) {
   return useQuery({
-    queryKey: vendasKeys.estatisticas(empresaId ?? ''),
-    queryFn: () => vendasApi.getEstatisticas(empresaId!),
+    queryKey: vendasKeys.clienteTop(empresaId ?? ''),
+    queryFn: () => vendasApi.getClienteTop(empresaId!),
     enabled: !!empresaId,
     staleTime: 5 * 60 * 1000, // 5 minutos
   })
 }
 
-// Hook para top produtos
-export function useTopProdutos(empresaId: string | undefined) {
+// Hook para produto top
+export function useProdutoTop(empresaId: string | undefined) {
   return useQuery({
-    queryKey: vendasKeys.topProdutos(empresaId ?? ''),
-    queryFn: () => vendasApi.getTopProdutos(empresaId!),
+    queryKey: vendasKeys.produtoTop(empresaId ?? ''),
+    queryFn: () => vendasApi.getProdutoTop(empresaId!),
     enabled: !!empresaId,
     staleTime: 5 * 60 * 1000,
   })
 }
 
-// Hook para top clientes
-export function useTopClientes(empresaId: string | undefined) {
+// Hook para total de clientes
+export function useTotalClientes(empresaId: string | undefined) {
   return useQuery({
-    queryKey: vendasKeys.topClientes(empresaId ?? ''),
-    queryFn: () => vendasApi.getTopClientes(empresaId!),
+    queryKey: vendasKeys.totalClientes(empresaId ?? ''),
+    queryFn: () => vendasApi.getTotalClientes(empresaId!),
     enabled: !!empresaId,
     staleTime: 5 * 60 * 1000,
   })
 }
 
-// Hook para total de vendas
-export function useTotalVendas(empresaId: string | undefined) {
+// Hook para total de produtos
+export function useTotalProdutos(empresaId: string | undefined) {
   return useQuery({
-    queryKey: vendasKeys.total(empresaId ?? ''),
-    queryFn: () => vendasApi.getTotalVendas(empresaId!),
+    queryKey: vendasKeys.totalProdutos(empresaId ?? ''),
+    queryFn: () => vendasApi.getTotalProdutos(empresaId!),
     enabled: !!empresaId,
     staleTime: 5 * 60 * 1000,
   })
@@ -57,7 +57,9 @@ export function useInvalidateVendas() {
 
   return {
     invalidateAll: () => queryClient.invalidateQueries({ queryKey: vendasKeys.all }),
-    invalidateEstatisticas: (empresaId: string) =>
-      queryClient.invalidateQueries({ queryKey: vendasKeys.estatisticas(empresaId) }),
+    invalidateClienteTop: (empresaId: string) =>
+      queryClient.invalidateQueries({ queryKey: vendasKeys.clienteTop(empresaId) }),
+    invalidateProdutoTop: (empresaId: string) =>
+      queryClient.invalidateQueries({ queryKey: vendasKeys.produtoTop(empresaId) }),
   }
 }

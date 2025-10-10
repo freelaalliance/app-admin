@@ -6,23 +6,18 @@ import { documentosApi } from '../_api/documentosApi'
 const documentosKeys = {
   all: ['documentos'] as const,
   lists: () => [...documentosKeys.all, 'list'] as const,
-  list: (empresaId: string, categoriaId?: string) =>
-    [...documentosKeys.lists(), empresaId, categoriaId] as const,
+  list: (empresaId: string) => [...documentosKeys.lists(), empresaId] as const,
   categorias: (empresaId: string) => [...documentosKeys.all, 'categorias', empresaId] as const,
+  usuarios: (empresaId: string) => [...documentosKeys.all, 'usuarios', empresaId] as const,
 }
 
-const usuarioKeys = {
-  all: ['usuario'] as const,
-  details: (empresaId: string) => [...usuarioKeys.all, 'details', empresaId] as const,
-}
-
-// Hook para dados do usuário
-export function useUsuario(empresaId: string | undefined) {
+// Hook para lista de documentos
+export function useDocumentos(empresaId: string | undefined) {
   return useQuery({
-    queryKey: usuarioKeys.details(empresaId ?? ''),
-    queryFn: () => documentosApi.getUsuario(empresaId!),
+    queryKey: documentosKeys.list(empresaId ?? ''),
+    queryFn: () => documentosApi.getDocumentos(empresaId!),
     enabled: !!empresaId,
-    staleTime: 10 * 60 * 1000, // 10 minutos - dados do usuário mudam raramente
+    staleTime: 5 * 60 * 1000,
   })
 }
 
@@ -36,13 +31,13 @@ export function useCategorias(empresaId: string | undefined) {
   })
 }
 
-// Hook para lista de documentos
-export function useDocumentos(empresaId: string | undefined, categoriaId?: string) {
+// Hook para usuários
+export function useUsuarios(empresaId: string | undefined) {
   return useQuery({
-    queryKey: documentosKeys.list(empresaId ?? '', categoriaId),
-    queryFn: () => documentosApi.getDocumentos(empresaId!, categoriaId),
+    queryKey: documentosKeys.usuarios(empresaId ?? ''),
+    queryFn: () => documentosApi.getUsuarios(empresaId!),
     enabled: !!empresaId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000, // 10 minutos - dados do usuário mudam raramente
   })
 }
 
@@ -53,7 +48,7 @@ export function useInvalidateDocumentos() {
   return {
     invalidateAll: () => queryClient.invalidateQueries({ queryKey: documentosKeys.all }),
     invalidateLista: (empresaId: string) =>
-      queryClient.invalidateQueries({ queryKey: documentosKeys.lists() }),
+      queryClient.invalidateQueries({ queryKey: documentosKeys.list(empresaId) }),
     invalidateCategorias: (empresaId: string) =>
       queryClient.invalidateQueries({ queryKey: documentosKeys.categorias(empresaId) }),
   }

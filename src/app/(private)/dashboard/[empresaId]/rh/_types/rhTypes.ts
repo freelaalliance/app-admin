@@ -1,43 +1,65 @@
 export interface ResumoRH {
-  total_colaboradores: number
-  colaboradores_ativos: number
-  colaboradores_demitidos: number
-  rotatividade_percentual: number
-  tendencia_rotatividade?: 'up' | 'down' | 'neutral'
+  totalColaboradores: number
+  colaboradoresAtivos: number
+  colaboradoresDemitidos: number
+  colaboradoresEmTreinamento: number
+  novasContratacoesMes: number
 }
 
 export interface Colaborador {
-  id: number
-  nome: string
-  cargo: string
-  departamento: string
-  data_admissao: string
-  data_demissao?: string
-  salario: number
-  status: 'ativo' | 'demitido'
+  id: string
+  admitidoEm: Date | string
+  demitidoEm: Date | string | null
+  colaborador: {
+    id: string
+    documento: string
+    nome: string
+    email: string | null
+    telefone: string | null
+  }
+  cargo: {
+    nome: string
+  }
 }
 
 export interface DadosRotatividade {
-  periodo: string
   admissoes: number
   demissoes: number
-  rotatividade_percentual: number
+  taxaRotatividade: number
+  colaboradoresInicio: number
+  colaboradoresFim: number
+  periodo: 'mes' | 'trimestre' | 'semestre' | 'anual'
+  dataInicio: Date | string
+  dataFim: Date | string
 }
 
-export interface Treinamento {
-  id: number
-  titulo: string
-  colaborador: string
-  cargo: string
-  data_inicio: string
-  data_conclusao?: string
-  carga_horaria: number
-  status: 'concluido' | 'em_andamento' | 'nao_iniciado'
-  progresso_percentual: number
+export interface ResumoTreinamentos {
+  totalTreinamentos: number
+  treinamentosAtivos: number
+  treinamentosConcluidos: number
+  colaboradoresEmTreinamento: number
+  mediaHorasTreinamento: number
+}
+
+export interface ColaboradorTreinamento {
+  id: string
+  iniciadoEm: Date | string
+  colaborador: {
+    nome: string
+    documento: string
+  }
+  cargo: {
+    nome: string
+  }
+  treinamento: {
+    id: string
+    nome: string
+    tipo: string
+  }
 }
 
 export interface ColaboradoresPorCargo {
   cargo: string
   quantidade: number
-  departamento: string
+  percentual: number
 }

@@ -11,11 +11,9 @@ export default function ExpedicaoPage() {
   const params = useParams()
   const empresaId = params.empresaId as string
 
-  const { data: expedicoesData, isLoading: isLoadingExpedicoes } = useExpedicoes(empresaId)
+  const { data: expedicoes, isLoading: isLoadingExpedicoes } = useExpedicoes(empresaId)
   const { data: resumo, isLoading: isLoadingResumo } = useResumoExpedicao(empresaId)
   const { data: mediaData, isLoading: isLoadingMedia } = useMediaAvaliacao(empresaId)
-
-  const expedicoes = expedicoesData?.expedicoes || []
 
   const handleExportarPDF = () => {
     // TODO: Implementar exportação para PDF
@@ -42,7 +40,7 @@ export default function ExpedicaoPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <IndicadorInfo
           titulo="Expedições Pendentes"
-          info={resumo?.expedicoes_pendentes?.toString() || '0'}
+          info={resumo?.pendentes?.toString() || '0'}
           subtitulo="Aguardando expedição"
           icon={Package}
           carregandoInformacao={isLoadingResumo}
@@ -50,7 +48,7 @@ export default function ExpedicaoPage() {
         />
         <IndicadorInfo
           titulo="Expedições Realizadas"
-          info={resumo?.expedicoes_expedidas?.toString() || '0'}
+          info={resumo?.realizadas?.toString() || '0'}
           subtitulo="Já despachadas"
           icon={Truck}
           carregandoInformacao={isLoadingResumo}
@@ -58,15 +56,15 @@ export default function ExpedicaoPage() {
         />
         <IndicadorInfo
           titulo="Total de Expedições"
-          info={resumo?.total_expedicoes?.toString() || '0'}
+          info={resumo?.total?.toString() || '0'}
           subtitulo="Todas as expedições"
           icon={CheckCircle}
           carregandoInformacao={isLoadingResumo}
         />
         <IndicadorInfo
           titulo="Média de Avaliação"
-          info={mediaData?.media_avaliacao?.toFixed(1) || '0.0'}
-          subtitulo={`${mediaData?.total_avaliacoes || 0} avaliações`}
+          info={mediaData?.media?.toFixed(1) || '0.0'}
+          subtitulo="Avaliações de expedição"
           icon={Star}
           carregandoInformacao={isLoadingMedia}
           className="border-l-4 border-l-green-500"
@@ -76,7 +74,7 @@ export default function ExpedicaoPage() {
       {/* Lista de Expedições */}
       <div>
         <h2 className="text-xl font-semibold mb-4">Expedições Recentes</h2>
-        <ListaExpedicoes expedicoes={expedicoes} isLoading={isLoadingExpedicoes} />
+        <ListaExpedicoes expedicoes={expedicoes || []} isLoading={isLoadingExpedicoes} />
       </div>
     </div>
   )

@@ -5,11 +5,11 @@ import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select'
 import { FileDown, FileText, Archive, Folder } from 'lucide-react'
 import { IndicadorInfo } from '@/components/shared/IndicadorInfo'
@@ -21,20 +21,20 @@ export default function DocumentosPage() {
   const empresaId = params.empresaId as string
   const [categoriaFiltro, setCategoriaFiltro] = useState<string>()
 
-  const { data: documentosData, isLoading: isLoadingDocs } = useDocumentos(
-    empresaId,
-    categoriaFiltro
-  )
+  const { data: documentos, isLoading: isLoadingDocs } = useDocumentos(empresaId)
   const { data: categorias, isLoading: isLoadingCategorias } = useCategorias(empresaId)
 
-  const documentos = documentosData?.documentos || []
-  const total = documentosData?.total || 0
+  // Filtrar documentos localmente por categoria se necessário
+  const documentosFiltrados =
+    categoriaFiltro && categoriaFiltro !== 'todas'
+      ? (documentos || []).filter((doc) => doc.categoriaDocumentoNome === categoriaFiltro)
+      : documentos || []
 
   // Calcular estatísticas
   const stats = {
-    total: total,
-    ativos: documentos.filter((d) => d.status === 'ativo').length,
-    arquivados: documentos.filter((d) => d.status === 'arquivado').length,
+    total: documentosFiltrados.length,
+    ativos: documentosFiltrados.length, // API não retorna status, assumindo todos ativos
+    arquivados: 0, // API não retorna status
     categorias: categorias?.length || 0,
   }
 
@@ -128,7 +128,7 @@ export default function DocumentosPage() {
 
       {/* Lista de Documentos */}
       <div>
-        <DocumentosTable documentos={documentos} isLoading={isLoadingDocs} />
+        <DocumentosTable documentos={documentosFiltrados} isLoading={isLoadingDocs} />
       </div>
     </div>
   )

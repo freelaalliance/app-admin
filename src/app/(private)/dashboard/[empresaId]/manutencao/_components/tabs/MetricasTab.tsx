@@ -1,16 +1,27 @@
 'use client'
 
 import { Card } from '@/components/ui/card'
-import { Clock, Wrench, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Clock, Wrench, CheckCircle, Power, PowerOff } from 'lucide-react'
 import { IndicadorInfo } from '@/components/shared/IndicadorInfo'
-import type { IndicadoresManutencao } from '../../_types/manutencaoTypes'
+import type { IndicadoresManutencao, EstatisticasStatus, EstatisticasGerais } from '../../_types/manutencaoTypes'
 
 interface MetricasTabProps {
   indicadores?: IndicadoresManutencao
+  estatisticasStatus?: EstatisticasStatus
+  estatisticasGerais?: EstatisticasGerais
   isLoading?: boolean
 }
 
-export function MetricasTab({ indicadores, isLoading }: MetricasTabProps) {
+export function MetricasTab({ indicadores, estatisticasStatus, estatisticasGerais, isLoading }: MetricasTabProps) {
+  // Calcular MTTR e MTBF a partir dos dados disponíveis
+  const mttrHoras = indicadores && indicadores.qtd_manutencoes > 0
+    ? (indicadores.total_tempo_parado / indicadores.qtd_manutencoes / 60).toFixed(1)
+    : '0.0'
+  
+  const mtbfHoras = indicadores && indicadores.qtd_manutencoes > 0
+    ? (indicadores.total_tempo_operacao / indicadores.qtd_manutencoes / 60).toFixed(1)
+    : '0.0'
+  
   return (
     <div className="space-y-6">
       {/* Cards de Indicadores MTTR e MTBF */}
@@ -30,7 +41,7 @@ export function MetricasTab({ indicadores, isLoading }: MetricasTabProps) {
           ) : (
             <div>
               <p className="text-4xl font-bold mb-1">
-                {indicadores?.mttr?.toFixed(1) || '0.0'}h
+                {mttrHoras}h
               </p>
               <p className="text-sm text-muted-foreground">
                 Tempo médio de reparo
@@ -54,7 +65,7 @@ export function MetricasTab({ indicadores, isLoading }: MetricasTabProps) {
           ) : (
             <div>
               <p className="text-4xl font-bold mb-1">
-                {indicadores?.mtbf?.toFixed(1) || '0.0'}h
+                {mtbfHoras}h
               </p>
               <p className="text-sm text-muted-foreground">
                 Tempo médio entre falhas
@@ -68,34 +79,34 @@ export function MetricasTab({ indicadores, isLoading }: MetricasTabProps) {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <IndicadorInfo
           titulo="Total de Manutenções"
-          info={indicadores?.total_manutencoes?.toString() || '0'}
+          info={indicadores?.qtd_manutencoes?.toString() || estatisticasGerais?.qtd_manutencoes_realizadas?.toString() || '0'}
           subtitulo="Realizadas"
           icon={Wrench}
           carregandoInformacao={isLoading || false}
         />
         <IndicadorInfo
-          titulo="Preventivas"
-          info={indicadores?.manutencoes_preventivas?.toString() || '0'}
-          subtitulo="Manutenções preventivas"
-          icon={CheckCircle}
+          titulo="Equipamentos Funcionando"
+          info={estatisticasStatus?.qtd_equipamentos_funcionando?.toString() || '0'}
+          subtitulo="Equipamentos em operação"
+          icon={Power}
           carregandoInformacao={isLoading || false}
           className="border-l-4 border-l-green-500"
         />
         <IndicadorInfo
-          titulo="Corretivas"
-          info={indicadores?.manutencoes_corretivas?.toString() || '0'}
-          subtitulo="Manutenções corretivas"
-          icon={AlertTriangle}
-          carregandoInformacao={isLoading || false}
-          className="border-l-4 border-l-yellow-500"
-        />
-        <IndicadorInfo
-          titulo="Em Manutenção"
-          info={indicadores?.equipamentos_em_manutencao?.toString() || '0'}
-          subtitulo="Equipamentos parados"
-          icon={Wrench}
+          titulo="Equipamentos Parados"
+          info={estatisticasStatus?.qtd_equipamentos_parados?.toString() || '0'}
+          subtitulo="Em manutenção"
+          icon={PowerOff}
           carregandoInformacao={isLoading || false}
           className="border-l-4 border-l-red-500"
+        />
+        <IndicadorInfo
+          titulo="Manutenção em Dia"
+          info={estatisticasGerais?.qtd_equipamentos_manutencao_em_dia?.toString() || '0'}
+          subtitulo="Equipamentos conformes"
+          icon={CheckCircle}
+          carregandoInformacao={isLoading || false}
+          className="border-l-4 border-l-blue-500"
         />
       </div>
     </div>

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { FileDown, Package, CheckCircle, XCircle, Star } from 'lucide-react'
 import { IndicadorInfo } from '@/components/shared/IndicadorInfo'
-import { useResumoRecebimentos, useRecebimentos, useDadosGrafico } from './_hooks/useRecebimentosData'
+import { useRecebimentos } from './_hooks/useRecebimentosData'
 import { FiltroData } from './_components/FiltroData'
 import { TabelaRecebimentos } from './_components/TabelaRecebimentos'
 import { GraficoAvaliacoes } from './_components/GraficoAvaliacoes'
@@ -17,20 +17,28 @@ export default function RecebimentosPage() {
   const [dataInicio, setDataInicio] = useState<string>()
   const [dataFim, setDataFim] = useState<string>()
 
-  const { data: resumo, isLoading: isLoadingResumo } = useResumoRecebimentos(empresaId)
-  const { data: recebimentosData, isLoading: isLoadingRecebimentos } = useRecebimentos(
-    empresaId,
-    dataInicio,
-    dataFim
-  )
-  const { data: graficosData, isLoading: isLoadingGrafico } = useDadosGrafico(
+  // Único endpoint que retorna estatísticas + lista de recebimentos
+  const { data: dadosRecebimentos, isLoading } = useRecebimentos(
     empresaId,
     dataInicio,
     dataFim
   )
 
-  const recebimentos = recebimentosData?.recebimentos || []
-  const dadosGrafico = graficosData?.dados || []
+  const estatisticas = dadosRecebimentos?.estatisticasRecebimentos
+  const recebimentos = dadosRecebimentos?.recebimentos || []
+
+  // Calcular dados para o gráfico a partir das avaliações dos recebimentos
+  const dadosGrafico = recebimentos.map((rec) => {
+    const mediaAvaliacao = rec.avaliacaoRecebimento.length > 0
+      ? rec.avaliacaoRecebimento.reduce((acc, av) => acc + av.avaliacao, 0) / rec.avaliacaoRecebimento.length
+      : 0
+    
+    return {
+      data: rec.recebidoEm,
+      fornecedor: rec.pedido.fornecedor.nome,
+      avaliacao: mediaAvaliacao,
+    }
+  })
 
   const handleFiltrar = (inicio?: string, fim?: string) => {
     setDataInicio(inicio)
@@ -62,33 +70,33 @@ export default function RecebimentosPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <IndicadorInfo
           titulo="Total de Recebimentos"
-          info={resumo?.total_recebimentos?.toString() || '0'}
+          info={estatisticas?.totalRecebimentos?.toString() || '0'}
           subtitulo="Todos os recebimentos"
           icon={Package}
-          carregandoInformacao={isLoadingResumo}
+          carregandoInformacao={isLoading}
         />
         <IndicadorInfo
-          titulo="Aprovados"
-          info={resumo?.recebimentos_aprovados?.toString() || '0'}
-          subtitulo="Recebimentos aprovados"
+          titulo="Recebimentos no Mês"
+          info={estatisticas?.recebimentosNoMes?.toString() || '0'}
+          subtitulo="Recebimentos deste mês"
           icon={CheckCircle}
-          carregandoInformacao={isLoadingResumo}
+          carregandoInformacao={isLoading}
           className="border-l-4 border-l-green-500"
         />
         <IndicadorInfo
-          titulo="Reprovados"
-          info={resumo?.recebimentos_reprovados?.toString() || '0'}
-          subtitulo="Recebimentos reprovados"
+          titulo="Recebimentos na Semana"
+          info={estatisticas?.recebimentosNaSemana?.toString() || '0'}
+          subtitulo="Recebimentos desta semana"
           icon={XCircle}
-          carregandoInformacao={isLoadingResumo}
-          className="border-l-4 border-l-red-500"
+          carregandoInformacao={isLoading}
+          className="border-l-4 border-l-blue-500"
         />
         <IndicadorInfo
           titulo="Média de Avaliação"
-          info={resumo?.media_avaliacao?.toFixed(1) || '0.0'}
+          info={estatisticas?.mediaAvaliacao?.toFixed(1) || '0.0'}
           subtitulo="Avaliação geral"
           icon={Star}
-          carregandoInformacao={isLoadingResumo}
+          carregandoInformacao={isLoading}
           className="border-l-4 border-l-yellow-500"
         />
       </div>
@@ -97,12 +105,12 @@ export default function RecebimentosPage() {
       <FiltroData onFiltrar={handleFiltrar} />
 
       {/* Gráfico de Avaliações */}
-      <GraficoAvaliacoes dados={dadosGrafico} isLoading={isLoadingGrafico} />
+      <GraficoAvaliacoes dados={dadosGrafico} isLoading={isLoading} />
 
       {/* Tabela de Recebimentos */}
       <div>
         <h2 className="text-xl font-semibold mb-4">Histórico de Recebimentos</h2>
-        <TabelaRecebimentos recebimentos={recebimentos} isLoading={isLoadingRecebimentos} />
+        <TabelaRecebimentos recebimentos={recebimentos} isLoading={isLoading} />
       </div>
     </div>
   )
