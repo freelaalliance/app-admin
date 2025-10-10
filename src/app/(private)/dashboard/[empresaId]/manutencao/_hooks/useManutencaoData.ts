@@ -65,7 +65,7 @@ export function useIndicadoresEquipamento(empresaId: string, equipamentoId?: str
   return useQuery({
     queryKey: manutencaoKeys.indicadoresEquipamento(empresaId, equipamentoId),
     queryFn: () => getIndicadoresEquipamento(empresaId, equipamentoId),
-    enabled: !!empresaId,
+    enabled: !!empresaId && !!equipamentoId, // Só habilita quando houver equipamentoId
     staleTime: 5 * 60 * 1000,
   })
 }
