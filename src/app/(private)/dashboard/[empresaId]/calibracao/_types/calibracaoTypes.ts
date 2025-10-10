@@ -12,14 +12,16 @@ export type EstatisticasCalibracao = {
 
 export type AgendaCalibracao = {
   id: string
+  instrumento: string
   codigo: string
   nome: string
-  marca: string
-  localizacao: string
-  frequencia: number
-  proximaCalibracao: Date | string
-  diasRestantes: number
-  status: 'vencido' | 'vencendo' | 'em_dia'
+  marca?: string
+  localizacao?: string
+  frequencia?: number
+  agendadoPara: Date | string
+  proximaCalibracao?: Date | string
+  diasRestantes?: number
+  status?: 'vencido' | 'vencendo' | 'em_dia'
 }
 
 export type HistoricoCalibracao = {

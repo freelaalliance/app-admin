@@ -89,7 +89,7 @@ export function HistoricoList({ dados, isLoading }: HistoricoListProps) {
                   </div>
                   
                   <div className="ml-4">
-                    {item.calibracao.status === 'APROVADO' ? (
+                    {item.calibracao.status.toUpperCase() === 'APROVADO' ? (
                       <Badge className="bg-green-100 text-green-800 border-green-200 flex items-center gap-1">
                         <CheckCircle2 className="h-3 w-3" />
                         Aprovado

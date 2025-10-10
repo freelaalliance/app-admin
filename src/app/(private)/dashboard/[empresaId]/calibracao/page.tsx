@@ -27,15 +27,32 @@ export default function CalibracoesPage() {
   const isLoading = loadingEstatisticas || loadingAgenda || loadingHistorico
 
   // Transforma agenda em eventos do calendário
-  const eventos = agenda?.map(item => ({
-    id: item.id,
-    allDay: true,
-    title: `${item.codigo} - ${item.nome}`,
-    start: new Date(item.proximaCalibracao),
-    backgroundColor: item.status === 'vencido' ? '#dc2626' : item.status === 'vencendo' ? '#f59e0b' : '#027435',
-    textColor: '#fff',
-    borderColor: item.status === 'vencido' ? '#dc2626' : item.status === 'vencendo' ? '#f59e0b' : '#027435',
-  })) ?? []
+  const eventos = agenda?.map(item => {
+    // Usa agendadoPara como fallback para proximaCalibracao
+    const dataCalibração = item.proximaCalibracao || item.agendadoPara
+    
+    // Calcula dias restantes e status se não vieram da API
+    const diasRestantes = item.diasRestantes ?? Math.ceil(
+      (new Date(dataCalibração).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    )
+    
+    let status = item.status
+    if (!status) {
+      if (diasRestantes < 0) status = 'vencido'
+      else if (diasRestantes <= 30) status = 'vencendo'
+      else status = 'em_dia'
+    }
+    
+    return {
+      id: item.id,
+      allDay: true,
+      title: `${item.codigo} - ${item.nome}`,
+      start: new Date(dataCalibração),
+      backgroundColor: status === 'vencido' ? '#dc2626' : status === 'vencendo' ? '#f59e0b' : '#027435',
+      textColor: '#fff',
+      borderColor: status === 'vencido' ? '#dc2626' : status === 'vencendo' ? '#f59e0b' : '#027435',
+    }
+  }) ?? []
 
   const handleExportPDF = () => {
     if (!estatisticas || !agenda || !historico) {
@@ -96,13 +113,27 @@ export default function CalibracoesPage() {
         doc.text('Agenda de Calibrações', 14, currentY)
         currentY += 8
 
-        const agendaData = agenda.map((item) => ({
-          codigo: item.codigo,
-          instrumento: item.nome,
-          agendado: format(new Date(item.proximaCalibracao), 'dd/MM/yyyy'),
-          status: item.status === 'vencido' ? 'Vencido' : item.status === 'vencendo' ? 'Vencendo' : 'Em Dia',
-          diasRestantes: item.diasRestantes,
-        }))
+        const agendaData = agenda.map((item) => {
+          const dataCalibração = item.proximaCalibracao || item.agendadoPara
+          const diasRestantes = item.diasRestantes ?? Math.ceil(
+            (new Date(dataCalibração).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+          )
+          
+          let status = item.status || 'em_dia'
+          if (!item.status) {
+            if (diasRestantes < 0) status = 'vencido'
+            else if (diasRestantes <= 30) status = 'vencendo'
+            else status = 'em_dia'
+          }
+          
+          return {
+            codigo: item.codigo,
+            instrumento: item.nome,
+            agendado: format(new Date(dataCalibração), 'dd/MM/yyyy'),
+            status: status === 'vencido' ? 'Vencido' : status === 'vencendo' ? 'Vencendo' : 'Em Dia',
+            diasRestantes: diasRestantes,
+          }
+        })
 
         doc.autoTable({
           startY: currentY,
@@ -149,7 +180,7 @@ export default function CalibracoesPage() {
           instrumento: item.instrumento.nome,
           certificado: item.calibracao.numeroCertificado,
           data: format(new Date(item.calibracao.realizadoEm), 'dd/MM/yyyy'),
-          status: item.calibracao.status,
+          status: item.calibracao.status.toUpperCase(),
           usuario: item.calibracao.usuarioNome,
         }))
 
