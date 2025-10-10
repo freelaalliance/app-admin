@@ -5,17 +5,16 @@ import type { DadosFornecedores } from '../_types/fornecedoresTypes'
 
 export const comprasApi = {
   // GET /admin/compras/empresas/:empresaId/resumo - Resumo de compras
+  // Retorna DIRETAMENTE os dados (sem wrapper ApiResponse)
   getResumoCompras: async (empresaId: string) => {
-    const { data } = await axiosInstance.get<{
-      status: boolean
-      msg: string
-      dados: DadosCompras
-      erro?: string | null
-    }>(`/admin/compras/empresas/${empresaId}/resumo`)
-    return data.dados
+    const { data } = await axiosInstance.get<DadosCompras>(
+      `/admin/compras/empresas/${empresaId}/resumo`
+    )
+    return data
   },
 
   // GET /admin/compras/empresas/:empresaId/pedidos - Lista de pedidos
+  // Retorna DIRETAMENTE array (sem wrapper ApiResponse)
   getPedidos: async (empresaId: string, dataInicial?: string, dataFinal?: string) => {
     const params = new URLSearchParams()
     if (dataInicial) params.append('dataInicial', dataInicial)
@@ -26,23 +25,16 @@ export const comprasApi = {
       ? `/admin/compras/empresas/${empresaId}/pedidos?${queryString}`
       : `/admin/compras/empresas/${empresaId}/pedidos`
 
-    const { data } = await axiosInstance.get<{
-      status: boolean
-      msg: string
-      dados: Pedido[]
-      erro?: string | null
-    }>(url)
-    return data.dados
+    const { data } = await axiosInstance.get<Pedido[]>(url)
+    return data
   },
 
   // GET /admin/compras/empresas/:empresaId/fornecedor/resumo - Resumo de fornecedores
+  // Retorna DIRETAMENTE os dados (sem wrapper ApiResponse)
   getResumoFornecedores: async (empresaId: string) => {
-    const { data } = await axiosInstance.get<{
-      status: boolean
-      msg: string
-      dados: DadosFornecedores
-      erro?: string | null
-    }>(`/admin/compras/empresas/${empresaId}/fornecedor/resumo`)
-    return data.dados
+    const { data } = await axiosInstance.get<DadosFornecedores>(
+      `/admin/compras/empresas/${empresaId}/fornecedor/resumo`
+    )
+    return data
   },
 }

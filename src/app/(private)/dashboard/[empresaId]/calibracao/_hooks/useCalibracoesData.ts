@@ -9,12 +9,11 @@ const calibracaoKeys = {
   historico: (empresaId: string) => [...calibracaoKeys.all(empresaId), 'historico'] as const,
 }
 
-export function useEstatisticasCalibracao(empresaId: string | undefined) {
+export function useEstatisticasCalibracao(empresaId: string) {
   return useQuery({
-    queryKey: calibracaoKeys.estatisticas(empresaId || ''),
+    queryKey: calibracaoKeys.estatisticas(empresaId),
     queryFn: () => calibracaoApi.getEstatisticas(empresaId!),
     enabled: !!empresaId,
-    staleTime: 1000 * 60 * 5, // 5 minutos
   })
 }
 

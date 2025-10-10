@@ -1,6 +1,8 @@
 import { axiosInstance } from '@/lib/axios'
 import type { DadosRecebimentos } from '../_types/recebimentosTypes'
 
+// GET /admin/recebimentos/empresas/:empresaId - Recebimentos
+// Retorna DIRETAMENTE os dados (sem wrapper ApiResponse)
 export async function getRecebimentos(
   empresaId: string,
   dataInicial?: string,
@@ -15,11 +17,6 @@ export async function getRecebimentos(
     ? `/admin/recebimentos/empresas/${empresaId}?${queryString}`
     : `/admin/recebimentos/empresas/${empresaId}`
 
-  const { data } = await axiosInstance.get<{
-    status: boolean
-    msg: string
-    dados: DadosRecebimentos
-    erro?: string | null
-  }>(url)
-  return data.dados
+  const { data } = await axiosInstance.get<DadosRecebimentos>(url)
+  return data
 }

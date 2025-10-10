@@ -24,7 +24,8 @@ export default function CalibracoesPage() {
   const { data: historico, isLoading: loadingHistorico } = 
     useHistoricoCalibracao(empresaId)
 
-  const isLoading = loadingEstatisticas || loadingAgenda || loadingHistorico
+  console.log('Dados de estatísticas de calibração na página:', estatisticas)
+
 
   // Transforma agenda em eventos do calendário
   const eventos = agenda?.map(item => {

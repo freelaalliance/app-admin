@@ -9,6 +9,8 @@ interface EstatisticasCardProps {
 }
 
 export function EstatisticasCard({ dados, isLoading }: EstatisticasCardProps) {
+
+  console.log('Dados de estatísticas de calibração:', dados)
   const totalCalibracoes = (dados?.quantidadeCalibracoesAprovadas ?? 0) + (dados?.quantidadeCalibracoesReprovadas ?? 0)
   const taxaAprovacao = totalCalibracoes > 0 
     ? ((dados?.quantidadeCalibracoesAprovadas ?? 0) / totalCalibracoes * 100).toFixed(1)
