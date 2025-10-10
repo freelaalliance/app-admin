@@ -11,6 +11,7 @@ import {
     useAgendaCalibracao,
     useHistoricoCalibracao,
 } from './_hooks/useCalibracoesData'
+import { format } from 'date-fns'
 
 export default function CalibracoesPage() {
   const params = useParams()
@@ -22,6 +23,8 @@ export default function CalibracoesPage() {
     useAgendaCalibracao(empresaId)
   const { data: historico, isLoading: loadingHistorico } = 
     useHistoricoCalibracao(empresaId)
+
+  const isLoading = loadingEstatisticas || loadingAgenda || loadingHistorico
 
   // Transforma agenda em eventos do calendário
   const eventos = agenda?.map(item => ({
@@ -35,8 +38,165 @@ export default function CalibracoesPage() {
   })) ?? []
 
   const handleExportPDF = () => {
-    // Implementar exportação PDF
-    console.log('Exportar PDF')
+    if (!estatisticas || !agenda || !historico) {
+      alert('Aguarde o carregamento dos dados antes de exportar.')
+      return
+    }
+
+    try {
+      const { jsPDF } = require('jspdf')
+      require('jspdf-autotable')
+      const doc = new jsPDF()
+
+      // Título principal
+      doc.setFontSize(20)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Relatório de Calibrações', 14, 20)
+
+      // Data de geração
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(100)
+      const dataAtual = new Date().toLocaleString('pt-BR')
+      doc.text(`Gerado em: ${dataAtual}`, 14, 28)
+
+      let currentY = 38
+
+      // Seção 1: Resumo Executivo
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(0)
+      doc.text('Resumo de Estatísticas', 14, currentY)
+      currentY += 8
+
+      const resumoData = [
+        { label: 'Total de Instrumentos', valor: estatisticas.quantidadeInstrumentosEmpresa.toString() },
+        { label: 'Calibrações Aprovadas', valor: estatisticas.quantidadeCalibracoesAprovadas.toString() },
+        { label: 'Calibrações Reprovadas', valor: estatisticas.quantidadeCalibracoesReprovadas.toString() },
+        { label: 'Calibrações Vencidas', valor: estatisticas.calibracoesVencido.toString() },
+        { label: 'Calibrações Vencendo', valor: estatisticas.calibracoesVencendo.toString() },
+        { label: 'Calibrações Dentro do Prazo', valor: estatisticas.calibracoesDentroPrazo.toString() },
+      ]
+
+      doc.autoTable({
+        startY: currentY,
+        head: [['Indicador', 'Valor']],
+        body: resumoData.map((item) => [item.label, item.valor]),
+        theme: 'grid',
+        headStyles: { fillColor: [59, 130, 246] },
+        margin: { left: 14, right: 14 },
+      })
+
+      currentY = (doc as any).lastAutoTable.finalY + 15
+
+      // Seção 2: Agenda de Calibrações
+      if (agenda.length > 0) {
+        doc.setFontSize(14)
+        doc.setFont('helvetica', 'bold')
+        doc.text('Agenda de Calibrações', 14, currentY)
+        currentY += 8
+
+        const agendaData = agenda.map((item) => ({
+          codigo: item.codigo,
+          instrumento: item.nome,
+          agendado: format(new Date(item.agendadoPara), 'dd/MM/yyyy'),
+        }))
+
+        doc.autoTable({
+          startY: currentY,
+          head: [['Código', 'Instrumento', 'Data Agendada']],
+          body: agendaData.map((a) => [a.codigo, a.instrumento, a.agendado]),
+          theme: 'grid',
+          headStyles: { fillColor: [2, 116, 53] },
+          margin: { left: 14, right: 14 },
+        })
+
+        currentY = (doc as any).lastAutoTable.finalY + 15
+      }
+
+      // Seção 3: Histórico de Calibrações
+      if (historico.length > 0) {
+        // Verifica se precisa de nova página
+        if (currentY > 250) {
+          doc.addPage()
+          currentY = 20
+        }
+
+        doc.setFontSize(14)
+        doc.setFont('helvetica', 'bold')
+        doc.text('Histórico de Calibrações', 14, currentY)
+        currentY += 8
+
+        const historicoData = historico.map((item) => ({
+          codigo: item.instrumento.codigo,
+          instrumento: item.instrumento.nome,
+          certificado: item.calibracao.numeroCertificado,
+          data: format(new Date(item.calibracao.realizadoEm), 'dd/MM/yyyy'),
+          status: item.calibracao.status,
+          usuario: item.calibracao.usuarioNome,
+        }))
+
+        doc.autoTable({
+          startY: currentY,
+          head: [['Código', 'Instrumento', 'Certificado', 'Data', 'Status', 'Usuário']],
+          body: historicoData.map((h) => [
+            h.codigo,
+            h.instrumento,
+            h.certificado,
+            h.data,
+            h.status,
+            h.usuario,
+          ]),
+          theme: 'grid',
+          headStyles: { fillColor: [59, 130, 246] },
+          margin: { left: 14, right: 14 },
+          styles: { fontSize: 8 },
+          columnStyles: {
+            0: { cellWidth: 20 },
+            1: { cellWidth: 40 },
+            2: { cellWidth: 30 },
+            3: { cellWidth: 25 },
+            4: { cellWidth: 25 },
+            5: { cellWidth: 35 },
+          },
+          didParseCell: function(data: any) {
+            // Colorir status
+            if (data.column.index === 4 && data.cell.section === 'body') {
+              if (data.cell.raw === 'APROVADO') {
+                data.cell.styles.textColor = [0, 128, 0] // Verde
+                data.cell.styles.fontStyle = 'bold'
+              } else if (data.cell.raw === 'REPROVADO') {
+                data.cell.styles.textColor = [255, 0, 0] // Vermelho
+                data.cell.styles.fontStyle = 'bold'
+              }
+            }
+          }
+        })
+      }
+
+      // Rodapé em todas as páginas
+      const pageCount = doc.internal.getNumberOfPages()
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i)
+        doc.setFontSize(8)
+        doc.setTextColor(150)
+        doc.text(
+          `Página ${i} de ${pageCount}`,
+          doc.internal.pageSize.width / 2,
+          doc.internal.pageSize.height - 10,
+          { align: 'center' }
+        )
+      }
+
+      // Salvar PDF
+      const filename = `relatorio_calibracoes_${new Date().getTime()}.pdf`
+      doc.save(filename)
+
+      console.log('PDF exportado com sucesso:', filename)
+    } catch (error) {
+      console.error('Erro ao exportar PDF:', error)
+      alert('Ocorreu um erro ao gerar o relatório.')
+    }
   }
 
   return (
