@@ -26,14 +26,24 @@ export type HistoricoCalibracao = {
   calibracao: {
     id: string
     numeroCertificado: string
-    erroEncontrado: string
-    status: 'APROVADO' | 'REPROVADO'
+    erroEncontrado: number
+    incertezaTendenciaEncontrado: number
+    toleranciaEstabelicida: number
+    certificado: string | null
+    observacao: string | null
+    status: string
     realizadoEm: Date | string
+    usuarioId: string
     usuarioNome: string
   }
   instrumento: {
     id: string
     codigo: string
     nome: string
+    localizacao: string
+    marca: string
+    resolucao: number
+    frequencia: number
+    repeticao: number
   }
 }

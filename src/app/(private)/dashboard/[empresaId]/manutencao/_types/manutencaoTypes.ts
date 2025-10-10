@@ -28,13 +28,13 @@ export interface EstatisticasGerais {
 
 export interface Manutencao {
   id: string
-  tipo: 'PREVENTIVA' | 'CORRETIVA'
+  tipo: string // 'PREVENTIVA' | 'CORRETIVA'
   descricao: string
   observacao: string | null
   dataInicio: Date | string
   dataFim: Date | string | null
   duracao: number | null
-  status: 'PENDENTE' | 'EM_ANDAMENTO' | 'CONCLUIDA' | 'CANCELADA'
+  status: string // 'PENDENTE' | 'EM_ANDAMENTO' | 'CONCLUIDA' | 'CANCELADA'
   equipamento: {
     id: string
     nome: string
