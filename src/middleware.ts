@@ -2,10 +2,6 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  if(!request.cookies.has('sessionAdmin')){
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
-
   const sessionCookie = request.cookies.get('sessionAdmin')
   const pathname = request.nextUrl.pathname
 
