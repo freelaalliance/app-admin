@@ -1,5 +1,5 @@
 import { axiosInstance } from '@/lib/axios'
-import type { Perfil, PerfilEmpresa, CreatePerfilData, UpdatePerfilData, PerfilPermissao } from '../_types/perfilTypes'
+import type { PerfilEmpresa, CreatePerfilData, UpdatePerfilData, PerfilPermissao } from '../_types/perfilTypes'
 
 /**
  * Busca os perfis vinculados a uma empresa específica
@@ -32,8 +32,8 @@ export async function updatePerfil(id: string, perfilData: UpdatePerfilData): Pr
  * Busca os dados de um perfil específico
  * Endpoint: GET /admin/perfil/{id}
  */
-export async function getPerfil(id: string): Promise<Perfil> {
-  const { data } = await axiosInstance.get<Perfil>(`/admin/perfil/${id}`)
+export async function getPerfil(id: string): Promise<PerfilEmpresa> {
+  const { data } = await axiosInstance.get<PerfilEmpresa>(`/admin/perfil/${id}`)
   return data
 }
 

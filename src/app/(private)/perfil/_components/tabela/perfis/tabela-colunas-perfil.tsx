@@ -15,19 +15,19 @@ export const colunasPerfil: ColumnDef<PerfilEmpresa, any>[] = [
     ),
   },
   {
-    accessorKey: 'perfil_nome',
+    accessorKey: 'nome',
     header: 'Perfil',
     enableColumnFilter: false,
     enableHiding: false,
-    cell: ({ row }) => <div className="md:w-96">{row.getValue('perfil_nome')}</div>,
+    cell: ({ row }) => <div className="md:w-96">{row.getValue('nome')}</div>,
   },
   {
-    accessorKey: 'perfil_administrativo',
+    accessorKey: 'administrativo',
     header: 'Administrativo',
     enableColumnFilter: false,
     enableHiding: false,
     cell: ({ row }) => (
-      <div>{row.getValue('perfil_administrativo') ? 'Sim' : 'Não'}</div>
+      <div>{row.getValue('administrativo') ? 'Sim' : 'Não'}</div>
     ),
   },
 ]

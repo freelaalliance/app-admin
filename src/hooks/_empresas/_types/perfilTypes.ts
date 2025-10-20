@@ -1,16 +1,8 @@
-export interface Perfil {
+export interface PerfilEmpresa {
   nome: string;
   id: string;
   administrativo: boolean;
   empresaId: string;
-}
-
-export interface PerfilEmpresa {
-  perfil_id: string;
-  perfil_nome: string;
-  perfil_administrativo: boolean;
-  empresa_id: string;
-  usuarios_count?: number;
 }
 
 export interface CreatePerfilData {
