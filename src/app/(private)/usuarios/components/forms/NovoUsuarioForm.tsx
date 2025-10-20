@@ -91,8 +91,8 @@ export function NovoUsuarioForm({ idEmpresa }: FormularioNovoUsuarioProps) {
                   <SelectContent>
                     {listaPerfis?.map((perfil) => {
                       return (
-                        <SelectItem key={perfil.perfil_id} value={perfil.perfil_id}>
-                          {perfil.perfil_nome}
+                        <SelectItem key={perfil.id} value={perfil.id}>
+                          {perfil.nome}
                         </SelectItem>
                       )
                     })}
