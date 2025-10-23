@@ -216,7 +216,6 @@ export function useModulosEmpresa(empresaId: string) {
   return useQuery({
     queryKey: adminKeys.modulosEmpresa(empresaId),
     queryFn: () => getModulosEmpresa(empresaId),
-    staleTime: 5 * 60 * 1000,
     enabled: !!empresaId,
   })
 }
@@ -296,7 +295,6 @@ export function usePermissoesPerfil(perfilId: string) {
   return useQuery({
     queryKey: adminKeys.permissoesPerfil(perfilId),
     queryFn: () => getPermissoesPerfil(perfilId),
-    staleTime: 5 * 60 * 1000,
     enabled: !!perfilId,
   })
 }

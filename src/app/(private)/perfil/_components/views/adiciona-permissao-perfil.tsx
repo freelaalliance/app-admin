@@ -44,6 +44,8 @@ export default function AdicionarPermissaoPerfil({
 
   // Hook para buscar módulos da empresa
   const { data: modulosEmpresaData, isLoading: carregandoModulos } = useModulosEmpresa(idEmpresa)
+  console.log("🚀 ~ AdicionarPermissaoPerfil ~ idEmpresa:", idEmpresa)
+  console.log("🚀 ~ AdicionarPermissaoPerfil ~ modulosEmpresaData:", modulosEmpresaData)
 
   // Hook para buscar funções do módulo selecionado
   const { data: funcoesModuloData, isLoading: carregandoFuncoes } = useFuncoesModulo(

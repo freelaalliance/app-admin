@@ -1,6 +1,5 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
@@ -13,7 +12,6 @@ import {
 } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { usePermissoesPerfil } from '@/hooks/_empresas/_hooks/useAdminData'
-
 
 export interface PermissaoPerfilProps {
   idPerfil: string

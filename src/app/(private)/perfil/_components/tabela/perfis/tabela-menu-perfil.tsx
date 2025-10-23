@@ -44,10 +44,10 @@ export function MenuTabelaPerfil({ row }: MenuTabelaPerfilProps) {
             </DropdownMenuItem>
           </DialogTrigger>
           <DialogEditaPerfil
-            idPerfil={row.perfil_id}
-            nomePerfil={row.perfil_nome}
-            perfilAdministrativo={row.perfil_administrativo}
-            idEmpresa={row.empresa_id}
+            idPerfil={row.id}
+            nomePerfil={row.nome}
+            perfilAdministrativo={row.administrativo}
+            idEmpresa={row.empresaId}
           />
         </Dialog>
         <AlertDialog>
@@ -60,7 +60,7 @@ export function MenuTabelaPerfil({ row }: MenuTabelaPerfilProps) {
               Excluir perfil
             </DropdownMenuItem>
           </AlertDialogTrigger>
-          <DialogConfirmaDeletaPerfil id={row.perfil_id} />
+          <DialogConfirmaDeletaPerfil id={row.id} />
         </AlertDialog>
         <DropdownMenuSeparator />
         <Dialog>
@@ -73,7 +73,7 @@ export function MenuTabelaPerfil({ row }: MenuTabelaPerfilProps) {
               Editar permissões
             </DropdownMenuItem>
           </DialogTrigger>
-          <DialogPermissoesPerfil idPerfil={row.perfil_id} idEmpresa={row.empresa_id} />
+          <DialogPermissoesPerfil idPerfil={row.id} idEmpresa={row.empresaId} />
         </Dialog>
       </DropdownMenuContent>
     </DropdownMenu>
