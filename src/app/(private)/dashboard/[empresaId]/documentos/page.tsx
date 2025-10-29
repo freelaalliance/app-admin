@@ -1,50 +1,34 @@
 'use client'
 
-import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { FileDown, FileText, Archive, Folder } from 'lucide-react'
+import { FileText, Folder } from 'lucide-react'
 import { IndicadorInfo } from '@/components/shared/IndicadorInfo'
-import { useDocumentos, useCategorias } from './_hooks/useDocumentosData'
-import { DocumentosTable } from './_components/tables/DocumentosTable'
+import { useDocumentos, useCategorias, useUsuarios } from './_hooks/useDocumentosData'
+import { TabelaDocumentos } from './_components/tables/DocumentosTable'
+import { ColunasDocumentosEmpresaAdmin } from './_components/tables/colunas-tabela-documentos-empresa-admin'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TabelaCategoriaDocumentos } from './_components/tables/categoria/tabela-categorias-documentos'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { NovoDocumentoForm } from './_components/forms/novo-documento-form'
 
 export default function DocumentosPage() {
   const params = useParams()
   const empresaId = params.empresaId as string
-  const [categoriaFiltro, setCategoriaFiltro] = useState<string>()
 
-  const { data: documentos, isLoading: isLoadingDocs } = useDocumentos(empresaId)
-  const { data: categorias, isLoading: isLoadingCategorias } = useCategorias(empresaId)
+  const { data: documentos, isFetching: isLoadingDocs } = useDocumentos(empresaId)
+  const { data: categorias, isFetching: isLoadingCategorias } = useCategorias(empresaId)
+  const { data: listaUsuarios, isFetching: carregandoUsuariosEmpresa } = useUsuarios(empresaId)
 
-  // Filtrar documentos localmente por categoria se necessário
-  const documentosFiltrados =
-    categoriaFiltro && categoriaFiltro !== 'todas'
-      ? (documentos || []).filter((doc) => doc.categoriaDocumentoNome === categoriaFiltro)
-      : documentos || []
+  console.log('📊 Page - empresaId:', empresaId)
+  console.log('📄 Page - documentos:', documentos)
+  console.log('📁 Page - categorias:', categorias)
+  console.log('👥 Page - usuários:', listaUsuarios)
 
   // Calcular estatísticas
   const stats = {
-    total: documentosFiltrados.length,
-    ativos: documentosFiltrados.length, // API não retorna status, assumindo todos ativos
-    arquivados: 0, // API não retorna status
+    total: documentos?.length ?? 0,
     categorias: categorias?.length || 0,
-  }
-
-  const handleExportarPDF = () => {
-    // TODO: Implementar exportação para PDF
-    console.log('Exportar PDF - Documentos')
-  }
-
-  const handleLimparFiltro = () => {
-    setCategoriaFiltro(undefined)
   }
 
   return (
@@ -55,33 +39,14 @@ export default function DocumentosPage() {
           <h1 className="text-3xl font-bold tracking-tight">Documentos</h1>
           <p className="text-muted-foreground">Gerencie e acesse os documentos da empresa</p>
         </div>
-        <Button onClick={handleExportarPDF} variant="outline">
-          <FileDown className="mr-2 h-4 w-4" />
-          Exportar PDF
-        </Button>
       </div>
 
       {/* Cards de Estatísticas */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <IndicadorInfo
           titulo="Total de Documentos"
           info={stats.total.toString()}
           icon={FileText}
-          carregandoInformacao={isLoadingDocs}
-        />
-        <IndicadorInfo
-          titulo="Documentos Ativos"
-          info={stats.ativos.toString()}
-          subtitulo="Disponíveis para uso"
-          icon={FileText}
-          carregandoInformacao={isLoadingDocs}
-          className="border-l-4 border-l-green-500"
-        />
-        <IndicadorInfo
-          titulo="Arquivados"
-          info={stats.arquivados.toString()}
-          subtitulo="Documentos arquivados"
-          icon={Archive}
           carregandoInformacao={isLoadingDocs}
         />
         <IndicadorInfo
@@ -93,42 +58,56 @@ export default function DocumentosPage() {
         />
       </div>
 
-      {/* Filtros */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filtros</CardTitle>
-        </CardHeader>
-        <CardContent className="flex gap-4">
-          <div className="flex-1 max-w-xs">
-            <Select
-              value={categoriaFiltro}
-              onValueChange={setCategoriaFiltro}
-              disabled={isLoadingCategorias}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Todas as categorias" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todas">Todas as categorias</SelectItem>
-                {categorias?.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {categoriaFiltro && (
-            <Button variant="outline" onClick={handleLimparFiltro}>
-              Limpar Filtro
-            </Button>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Lista de Documentos */}
       <div>
-        <DocumentosTable documentos={documentosFiltrados} isLoading={isLoadingDocs} />
+
+        <Tabs defaultValue="documentos">
+          <TabsList >
+            <TabsTrigger  value="categorias">Categorias de documentos</TabsTrigger>
+            <TabsTrigger value="documentos">Documentos</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="categorias">
+            <TabelaCategoriaDocumentos
+              carregandoCategorias={isLoadingCategorias}
+              listaCategorias={categorias ?? []}
+              empresaId={empresaId ?? ''}
+            />
+          </TabsContent>
+          <TabsContent value="documentos">
+            <div className="flex justify-end p-4 rounded-lg shadow-md">
+              <Dialog>
+                <DialogTrigger asChild >
+                  <Button
+                    className="shadow flex md:justify-between justify-center md:gap-4 gap-2 w-full md:w-auto"
+                    disabled={!empresaId || carregandoUsuariosEmpresa}
+                  >
+                    Novo documento
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="overflow-auto max-h-full max-w-5xl">
+                  <DialogHeader>
+                    <DialogTitle>Criar novo documento</DialogTitle>
+                    <DialogDescription>
+                      Crie um novo documento para o seu cliente
+                    </DialogDescription>
+                  </DialogHeader>
+                  <NovoDocumentoForm
+                    listaCategoriasDocumentos={!isLoadingCategorias ? (categorias ?? []) : []}
+                    listaUsuarios={listaUsuarios ?? []}
+                    empresaId={empresaId ?? ''}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
+            <TabelaDocumentos
+              dadosDocumentos={documentos ?? []}
+              carregandoDados={isLoadingDocs}
+              colunasDocumento={ColunasDocumentosEmpresaAdmin}
+              categoriasDocumento={categorias ?? []}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

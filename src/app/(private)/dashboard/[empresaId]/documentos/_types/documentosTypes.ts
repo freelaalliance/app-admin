@@ -41,3 +41,39 @@ export type DadosUsuario = {
 }
 
 export type DadosUsuarios = DadosUsuario[]
+
+export type RevisoesDocumentoType = {
+  id: string
+  numeroRevisao: number
+  revisadoEm: Date
+  arquivoId: string
+  arquivoNome: string
+  arquivoUrl: string
+  usuario: string
+}
+
+export type DocumentoType = {
+  id: string
+  nome: string
+  descricaoDocumento: string
+  copias: number
+  recuperacao: string
+  elegibilidade: string
+  disposicao: string
+  retencao: Date
+  uso: string
+  empresaId: string
+  categoriaDocumentoNome: string
+  revisoes: RevisoesDocumentoType[]
+}
+
+export type CategoriaDocumentoType = {
+  id: string
+  nome: string
+  empresaId: string
+}
+
+export type ResponseType = {
+  status: boolean
+  msg: string
+}

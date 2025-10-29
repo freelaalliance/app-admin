@@ -1,140 +1,273 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from '@/components/ui/command'
+import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { Documento } from '../../_types/documentosTypes'
-import { FileText, Download, Calendar, User, FileType } from 'lucide-react'
-import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import {
+  type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from '@tanstack/react-table'
+import { Check, PlusCircle } from 'lucide-react'
+import React from 'react'
+import { CategoriaDocumentoType, DocumentoType } from '../../_types/documentosTypes'
 
-interface DocumentosTableProps {
-  documentos: Documento[]
-  isLoading: boolean
+interface TabelaDocumentosProps {
+  carregandoDados?: boolean
+  colunasDocumento: Array<ColumnDef<DocumentoType>>
+  dadosDocumentos: Array<DocumentoType>
+  categoriasDocumento: Array<CategoriaDocumentoType>
 }
 
-const statusConfig = {
-  ativo: { label: 'Ativo', variant: 'default' as const },
-  arquivado: { label: 'Arquivado', variant: 'secondary' as const },
-  obsoleto: { label: 'Obsoleto', variant: 'destructive' as const },
-}
+export function TabelaDocumentos({
+  dadosDocumentos,
+  carregandoDados,
+  colunasDocumento,
+  categoriasDocumento
+}: TabelaDocumentosProps) {
+  const [open, setOpen] = React.useState(false)
+  const table = useReactTable({
+    data: dadosDocumentos,
+    columns: colunasDocumento,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+  })
 
-function formatarTamanho(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
-export function DocumentosTable({ documentos, isLoading }: DocumentosTableProps) {
-  const handleDownload = (documento: Documento) => {
-    // TODO: Implementar download real
-    console.log('Download:', documento.arquivo_url)
-    window.open(documento.arquivo_url, '_blank')
-  }
-
-  if (isLoading) {
-    return (
-      <div className="space-y-3">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <Skeleton key={i} className="h-24 w-full" />
-        ))}
-      </div>
-    )
-  }
-
-  if (documentos.length === 0) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-muted-foreground text-center">
-            Nenhum documento encontrado
-          </p>
-        </CardContent>
-      </Card>
-    )
-  }
+  const facets = table.getColumn('categoriaDocumentoNome')?.getFacetedUniqueValues()
+  const selectedValues = new Set(table.getColumn('categoriaDocumentoNome')?.getFilterValue() as string[])
 
   return (
-    <div className="space-y-3">
-      {documentos.map((doc) => {
-        const config = statusConfig[doc.status]
-
-        return (
-          <Card key={doc.id} className="hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-lg">{doc.titulo}</CardTitle>
-                    <Badge variant={config.variant}>{config.label}</Badge>
-                    {doc.categoria_nome && (
-                      <Badge variant="outline">{doc.categoria_nome}</Badge>
+    <section className="space-y-2">
+      <div className="flex flex-col items-center gap-2 md:py-4 md:flex-row">
+        <Input
+          placeholder="Filtrar pelo código do documento"
+          className="w-full md:w-64"
+          disabled={dadosDocumentos?.length === 0}
+          value={(table.getColumn('nome')?.getFilterValue() as string) ?? ''}
+          onChange={event =>
+            table.getColumn('nome')?.setFilterValue(event.target.value)
+          }
+        />
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="border-dashed" disabled={dadosDocumentos?.length === 0}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {"Categorias do documento"}
+              {selectedValues?.size > 0 && (
+                <>
+                  <Separator orientation="vertical" className="mx-2 h-4" />
+                  <Badge
+                    variant="secondary"
+                    className="rounded-sm px-1 font-normal lg:hidden"
+                  >
+                    {selectedValues.size}
+                  </Badge>
+                  <div className="hidden space-x-1 lg:flex">
+                    {selectedValues.size > 2 ? (
+                      <Badge
+                        variant="secondary"
+                        className="rounded-sm px-1 font-normal"
+                      >
+                        {`${selectedValues.size} selecionados`}
+                      </Badge>
+                    ) : (
+                      categoriasDocumento
+                        .filter((categoria) => selectedValues.has(categoria.nome))
+                        .map((categoria) => (
+                          <Badge
+                            variant="secondary"
+                            key={categoria.id}
+                            className="rounded-sm px-1 font-normal"
+                          >
+                            {categoria.nome}
+                          </Badge>
+                        ))
                     )}
                   </div>
-                  {doc.descricao && (
-                    <p className="text-sm text-muted-foreground">{doc.descricao}</p>
-                  )}
-                </div>
-                <Button
-                  onClick={() => handleDownload(doc)}
-                  size="sm"
-                  variant="outline"
-                  className="ml-4"
+                </>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Command>
+              <CommandInput placeholder="Buscar por categoria" className="h-9" />
+              <CommandList>
+                <CommandEmpty>Nenhuma categoria encontrada</CommandEmpty>
+                <CommandGroup>
+                  {categoriasDocumento.map((categoria) => {
+                    const isSelected = selectedValues.has(categoria.nome)
+                    return (
+                      <CommandItem
+                        key={categoria.id}
+                        value={categoria.nome}
+                        onSelect={() => {
+                          if (isSelected) {
+                            selectedValues.delete(categoria.nome)
+                          } else {
+                            selectedValues.add(categoria.nome)
+                          }
+                          const filterValues = Array.from(selectedValues)
+                          table.getColumn('categoriaDocumentoNome')?.setFilterValue(
+                            filterValues.length ? filterValues : undefined,
+                          )
+                        }}
+                      >
+                        <div
+                          className={cn(
+                            'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                            isSelected
+                              ? 'bg-primary text-primary-foreground'
+                              : 'opacity-50 [&_svg]:invisible',
+                          )}
+                        >
+                          <Check className={cn('h-4 w-4')} />
+                        </div>
+                        <span>{categoria.nome}</span>
+                        {facets?.get(categoria.nome) && (
+                          <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
+                            {facets.get(categoria.nome)}
+                          </span>
+                        )}
+                      </CommandItem>
+                    )
+                  })}
+                </CommandGroup>
+                {selectedValues.size > 0 && (
+                  <>
+                    <CommandSeparator />
+                    <CommandGroup>
+                      <CommandItem
+                        onSelect={() => table.getColumn('categoriaDocumentoNome')?.setFilterValue(undefined)}
+                        className="justify-center text-center"
+                      >
+                        Limpar filtros
+                      </CommandItem>
+                    </CommandGroup>
+                  </>
+                )}
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+      <div className="rounded-md border shadow bg-gray-50">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map(headerGroup => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map(header => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    </TableHead>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {carregandoDados ? (
+              <>
+                <TableRow>
+                  <TableCell
+                    colSpan={colunasDocumento.length}
+                    className="h-16 text-center text-padrao-gray-200 text-sm font-medium mt-5 md:text-base lg:text-lg"
+                  >
+                    <Skeleton className="h-4 w-full " />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell
+                    colSpan={colunasDocumento.length}
+                    className="h-16 text-center text-padrao-gray-200 text-sm font-medium mt-5 md:text-base lg:text-lg"
+                  >
+                    <Skeleton className="h-4 w-full " />
+                  </TableCell>
+                </TableRow>
+              </>
+            ) : table.getRowModel().rows?.length > 0 ? (
+              table.getRowModel().rows.map(row => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
-                  <Download className="h-4 w-4 mr-2" />
-                  Baixar
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <FileType className="h-4 w-4" />
-                  <div>
-                    <p className="font-medium text-foreground">{doc.arquivo_nome}</p>
-                    <p className="text-xs">
-                      {doc.tipo_arquivo.toUpperCase()} • {formatarTamanho(doc.tamanho_bytes)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <FileText className="h-4 w-4" />
-                  <div>
-                    <p className="font-medium text-foreground">Revisão {doc.revisao}</p>
-                    <p className="text-xs">Versão do documento</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  <div>
-                    <p className="font-medium text-foreground">
-                      {format(new Date(doc.data_criacao), 'dd/MM/yyyy', { locale: ptBR })}
-                    </p>
-                    <p className="text-xs">Data de criação</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <User className="h-4 w-4" />
-                  <div>
-                    <p className="font-medium text-foreground">
-                      {doc.atualizado_por || doc.criado_por || 'Sistema'}
-                    </p>
-                    <p className="text-xs">
-                      Atualizado em{' '}
-                      {format(new Date(doc.data_atualizacao), 'dd/MM/yyyy', { locale: ptBR })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )
-      })}
-    </div>
+                  {row.getVisibleCells().map(cell => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={colunasDocumento.length}
+                  className="h-16 text-center text-padrao-gray-200 text-sm mt-5 md:text-base lg:text-lg"
+                >
+                  Nenhum documento encontrado!
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="grid grid-cols-2 gap-2 md:w-64 md:float-right">
+        <Button
+          className="enabled:shadow-md"
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Voltar
+        </Button>
+        <Button
+          className="enabled:shadow-md"
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Próximo
+        </Button>
+      </div>
+    </section>
   )
 }

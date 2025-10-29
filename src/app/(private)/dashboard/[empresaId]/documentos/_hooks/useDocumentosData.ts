@@ -1,43 +1,59 @@
 // Custom hooks para dados de documentos
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { documentosApi } from '../_api/documentosApi'
+import type { ResponseType } from '../_types/documentosTypes'
 
 // Query Keys Factory
 const documentosKeys = {
   all: ['documentos'] as const,
-  lists: () => [...documentosKeys.all, 'list'] as const,
-  list: (empresaId: string) => [...documentosKeys.lists(), empresaId] as const,
-  categorias: (empresaId: string) => [...documentosKeys.all, 'categorias', empresaId] as const,
-  usuarios: (empresaId: string) => [...documentosKeys.all, 'usuarios', empresaId] as const,
+  list: (empresaId: string) => ['documentos', 'list', empresaId] as const,
+  categorias: (empresaId: string) => ['documentos', 'categorias', empresaId] as const,
+  usuarios: (empresaId: string) => ['documentos', 'usuarios', empresaId] as const,
 }
 
 // Hook para lista de documentos
-export function useDocumentos(empresaId: string | undefined) {
+export function useDocumentos(empresaId: string) {
   return useQuery({
-    queryKey: documentosKeys.list(empresaId ?? ''),
-    queryFn: () => documentosApi.getDocumentos(empresaId!),
+    queryKey: documentosKeys.list(empresaId),
+    queryFn: async () => {
+      console.log('🔍 Buscando documentos para empresa:', empresaId)
+      const dados = await documentosApi.getDocumentos(empresaId)
+      console.log('✅ Documentos recebidos:', dados)
+      return dados
+    },
     enabled: !!empresaId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0
   })
 }
 
 // Hook para categorias
-export function useCategorias(empresaId: string | undefined) {
+export function useCategorias(empresaId: string) {
   return useQuery({
-    queryKey: documentosKeys.categorias(empresaId ?? ''),
-    queryFn: () => documentosApi.getCategorias(empresaId!),
+    queryKey: documentosKeys.categorias(empresaId),
+    queryFn: async () => {
+      console.log('🔍 Buscando categorias para empresa:', empresaId)
+      const dados = await documentosApi.getCategorias(empresaId)
+      console.log('✅ Categorias recebidas:', dados)
+      return dados
+    },
     enabled: !!empresaId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0
   })
 }
 
 // Hook para usuários
-export function useUsuarios(empresaId: string | undefined) {
+export function useUsuarios(empresaId: string) {
   return useQuery({
-    queryKey: documentosKeys.usuarios(empresaId ?? ''),
-    queryFn: () => documentosApi.getUsuarios(empresaId!),
+    queryKey: documentosKeys.usuarios(empresaId),
+    queryFn: async () => {
+      console.log('🔍 Buscando usuários para empresa:', empresaId)
+      const dados = await documentosApi.getUsuarios(empresaId)
+      console.log('✅ Usuários recebidos:', dados)
+      return dados
+    },
     enabled: !!empresaId,
-    staleTime: 10 * 60 * 1000, // 10 minutos - dados do usuário mudam raramente
+    staleTime: 0
   })
 }
 
@@ -52,4 +68,120 @@ export function useInvalidateDocumentos() {
     invalidateCategorias: (empresaId: string) =>
       queryClient.invalidateQueries({ queryKey: documentosKeys.categorias(empresaId) }),
   }
+}
+
+// Hook para remover categoria
+export function useRemoveCategoria(empresaId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: documentosApi.removerCategoria,
+    onError: (error: Error) => {
+      toast.error('Erro ao remover categoria, tente novamente!', {
+        description: error.message,
+      })
+    },
+    onSuccess: (data) => {
+      if (!data?.status) {
+        toast.error(data?.msg ?? 'Erro ao remover categoria')
+        return
+      }
+      queryClient.invalidateQueries({
+        queryKey: documentosKeys.categorias(empresaId),
+      })
+      toast.success(data.msg)
+    },
+  })
+}
+
+// Hook para criar/atualizar categoria
+export function useSetCategoria(empresaId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: documentosApi.setCategoria,
+    onError: (error: Error) => {
+      toast.error('Erro ao salvar categoria, tente novamente!', {
+        description: error.message,
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: documentosKeys.categorias(empresaId),
+      })
+      toast.success('Categoria salva com sucesso!')
+    },
+  })
+}
+
+// Hook para criar documento
+export function useSetDocumento(empresaId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: documentosApi.setDocumento,
+    onError: (error: Error) => {
+      toast.error('Erro ao criar documento, tente novamente!', {
+        description: error.message,
+      })
+    },
+    onSuccess: (data: ResponseType | null) => {
+      if (!data || !data.status) {
+        toast.error(data?.msg ?? 'Erro ao criar documento')
+        return
+      }
+      queryClient.invalidateQueries({
+        queryKey: documentosKeys.list(empresaId),
+      })
+      toast.success(data.msg)
+    },
+  })
+}
+
+// Hook para remover documento
+export function useRemoveDocumento(empresaId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: documentosApi.removerDocumento,
+    onError: (error: Error) => {
+      toast.error('Erro ao remover documento, tente novamente!', {
+        description: error.message,
+      })
+    },
+    onSuccess: (data: ResponseType | null) => {
+      if (!data || !data.status) {
+        toast.error(data?.msg ?? 'Erro ao remover documento')
+        return
+      }
+      queryClient.invalidateQueries({
+        queryKey: documentosKeys.list(empresaId),
+      })
+      toast.success(data.msg)
+    },
+  })
+}
+
+// Hook para criar revisão de documento
+export function useSetRevisaoDocumento(empresaId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: documentosApi.setRevisaoDocumento,
+    onError: (error: Error) => {
+      toast.error('Erro ao criar revisão do documento, tente novamente!', {
+        description: error.message,
+      })
+    },
+    onSuccess: (data: ResponseType | null) => {
+      if (!data || !data.status) {
+        toast.error(data?.msg ?? 'Erro ao criar revisão')
+        return
+      }
+      queryClient.invalidateQueries({
+        queryKey: documentosKeys.list(empresaId),
+      })
+      toast.success(data.msg)
+    },
+  })
 }
