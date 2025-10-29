@@ -17,7 +17,7 @@ import type { EmpresaFormType, empresaType } from '@/hooks/_empresas/_types/empr
 import { EmpresasSwitcher } from './EmpresasSwitcher'
 import { NavMainModulos } from './NavMainModulos'
 import { useCreateEmpresa, useDeleteEmpresa, useEmpresas, useModulosEmpresa, useUpdateEmpresa } from '@/hooks/_empresas/_hooks/useAdminData'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { EmpresaDialog } from '@/hooks/_empresas/_components/dialogs/EmpresaDialog'
 import { ConfirmDeleteDialog } from '@/hooks/_empresas/_components/dialogs/ConfirmDeleteDialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
@@ -101,6 +101,8 @@ export function AppSidebar({
     }
   }
 
+  const pathname = usePathname()
+
   return (
     <>
       <Sidebar collapsible="offcanvas" {...props}>
@@ -133,18 +135,18 @@ export function AppSidebar({
                 </SidebarMenuButton>
                 <SidebarMenuSub>
                   <SidebarMenuSubItem key={"modulos"}>
-                    <SidebarMenuSubButton asChild>
-                      <a href={"/modulos?empresa=" + empresaIdParam}>Módulos</a>
+                    <SidebarMenuSubButton isActive={pathname.includes(`/modulos`)} asChild>
+                      <a href={`/modulos?empresa=${empresaIdParam}`}>Módulos</a>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem key={"perfis"}>
-                    <SidebarMenuSubButton asChild>
-                      <a href={"/perfil?empresa=" + empresaIdParam}>Perfis</a>
+                    <SidebarMenuSubButton isActive={pathname.includes(`/perfil`)} asChild>
+                      <a href={`/perfil?empresa=${empresaIdParam}`}>Perfis</a>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem key={"usuarios"}>
-                    <SidebarMenuSubButton asChild>
-                      <a href={"/usuarios?empresa=" + empresaIdParam}>Usuários</a>
+                    <SidebarMenuSubButton isActive={pathname.includes(`/usuarios`)} asChild>
+                      <a href={`/usuarios?empresa=${empresaIdParam}`}>Usuários</a>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                   <SidebarMenuItem key={"editar"}>
@@ -181,6 +183,7 @@ export function AppSidebar({
           <NavMainModulos
             modulosEmpresa={modulosEmpresa}
             empresaSelecionada={empresaIdParam}
+            pathName={pathname}
           />
         </SidebarContent>
 

@@ -1,3 +1,4 @@
+
 import { Modulo } from "@/hooks/_empresas/_types/moduloTypes"
 import Link from 'next/link'
 import {
@@ -8,9 +9,7 @@ import {
   Truck,
   FileText,
   Receipt,
-  Wrench,
-  Ruler,
-  LayoutDashboard,
+  Wrench, LayoutDashboard,
   MonitorCog
 } from 'lucide-react'
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar"
@@ -18,6 +17,7 @@ import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, Side
 interface NavMainModulosProps {
   modulosEmpresa: Modulo[] | undefined
   empresaSelecionada?: string | null
+  pathName: string
 }
 
 const moduloIcons: Record<string, React.ElementType> = {
@@ -33,7 +33,8 @@ const moduloIcons: Record<string, React.ElementType> = {
   default: Settings,
 }
 
-export function NavMainModulos({ modulosEmpresa, empresaSelecionada }: NavMainModulosProps) {
+export function NavMainModulos({ modulosEmpresa, empresaSelecionada, pathName }: NavMainModulosProps) {
+
   return (
     modulosEmpresa && modulosEmpresa.length > 0 && (
       <SidebarGroup>
@@ -53,7 +54,7 @@ export function NavMainModulos({ modulosEmpresa, empresaSelecionada }: NavMainMo
                 const Icon = moduloIcons[codigoModulo] || moduloIcons.default
                 return (
                   <SidebarMenuItem key={modulo.id}>
-                    <SidebarMenuButton asChild>
+                    <SidebarMenuButton isActive={pathName.includes(`/dashboard/${empresaSelecionada}/${codigoModulo}`)} asChild>
                       <Link href={`/dashboard/${empresaSelecionada}/${codigoModulo}?empresa=${empresaSelecionada}`} className="flex items-center gap-2">
                         <Icon className="h-4 w-4" />
                         <span>{modulo.nome}</span>
