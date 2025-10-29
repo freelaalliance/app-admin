@@ -91,7 +91,7 @@ export const documentosApi = {
 
   setDocumento: async (documento: NovoDocumentoFormType): Promise<ResponseType | null> => {
     return await axiosInstance
-      .post<ResponseType>('documentos', documento)
+      .post<ResponseType>('admin/documentos/empresa', documento)
       .then(({ data }) => data)
       .catch(() => null)
   },

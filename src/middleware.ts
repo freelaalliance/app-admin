@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const sessionCookie = request.cookies.get('sessionAdmin')
+  const sessionCookie = request.cookies.get('sessionUser')
   const pathname = request.nextUrl.pathname
 
   // Se não tem cookie de sessão e não está na página de login, redireciona para login
