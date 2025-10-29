@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { FileText, Folder } from 'lucide-react'
 import { IndicadorInfo } from '@/components/shared/IndicadorInfo'
@@ -13,8 +13,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { NovoDocumentoForm } from './_components/forms/novo-documento-form'
 
 export default function DocumentosPage() {
-  const params = useParams()
-  const empresaId = params.empresaId as string
+  const params = useSearchParams()
+  const empresaId = params.get('empresa') as string
 
   const { data: documentos, isFetching: isLoadingDocs } = useDocumentos(empresaId)
   const { data: categorias, isFetching: isLoadingCategorias } = useCategorias(empresaId)

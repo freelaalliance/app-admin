@@ -98,7 +98,7 @@ export const documentosApi = {
 
   removerDocumento: async ({ id, empresaId }: Pick<DocumentoType, 'id'> & { empresaId: string }): Promise<ResponseType | null> => {
     return await axiosInstance
-      .delete<ResponseType>(`documentos/${id}/empresa/${empresaId}`)
+      .delete<ResponseType>(`admin/documentos/${id}/empresa/${empresaId}`)
       .then(({ data }) => data)
       .catch(() => null)
   },
@@ -107,10 +107,10 @@ export const documentosApi = {
     revisaoDocumentoForm: NovaRevisaoDocumentoFormType
   ): Promise<ResponseType | null> => {
     return await axiosInstance
-      .post<ResponseType>(`documentos/revisao/${revisaoDocumentoForm.id}`, {
+      .post<ResponseType>(`admin/documentos/revisao/${revisaoDocumentoForm.id}`, {
         arquivo: revisaoDocumentoForm.arquivo,
       })
       .then(({ data }) => data)
       .catch(() => null)
-  }
+  },
 }
