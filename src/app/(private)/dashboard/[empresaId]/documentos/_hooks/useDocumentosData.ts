@@ -16,12 +16,7 @@ const documentosKeys = {
 export function useDocumentos(empresaId: string) {
   return useQuery({
     queryKey: documentosKeys.list(empresaId),
-    queryFn: async () => {
-      console.log('🔍 Buscando documentos para empresa:', empresaId)
-      const dados = await documentosApi.getDocumentos(empresaId)
-      console.log('✅ Documentos recebidos:', dados)
-      return dados
-    },
+    queryFn: () => documentosApi.getDocumentos(empresaId),
     enabled: !!empresaId,
     staleTime: 0
   })
@@ -31,12 +26,7 @@ export function useDocumentos(empresaId: string) {
 export function useCategorias(empresaId: string) {
   return useQuery({
     queryKey: documentosKeys.categorias(empresaId),
-    queryFn: async () => {
-      console.log('🔍 Buscando categorias para empresa:', empresaId)
-      const dados = await documentosApi.getCategorias(empresaId)
-      console.log('✅ Categorias recebidas:', dados)
-      return dados
-    },
+    queryFn: () => documentosApi.getCategorias(empresaId),
     enabled: !!empresaId,
     staleTime: 0
   })
@@ -46,12 +36,7 @@ export function useCategorias(empresaId: string) {
 export function useUsuarios(empresaId: string) {
   return useQuery({
     queryKey: documentosKeys.usuarios(empresaId),
-    queryFn: async () => {
-      console.log('🔍 Buscando usuários para empresa:', empresaId)
-      const dados = await documentosApi.getUsuarios(empresaId)
-      console.log('✅ Usuários recebidos:', dados)
-      return dados
-    },
+    queryFn: () => documentosApi.getUsuarios(empresaId),
     enabled: !!empresaId,
     staleTime: 0
   })

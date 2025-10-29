@@ -20,11 +20,6 @@ export default function DocumentosPage() {
   const { data: categorias, isFetching: isLoadingCategorias } = useCategorias(empresaId)
   const { data: listaUsuarios, isFetching: carregandoUsuariosEmpresa } = useUsuarios(empresaId)
 
-  console.log('📊 Page - empresaId:', empresaId)
-  console.log('📄 Page - documentos:', documentos)
-  console.log('📁 Page - categorias:', categorias)
-  console.log('👥 Page - usuários:', listaUsuarios)
-
   // Calcular estatísticas
   const stats = {
     total: documentos?.length ?? 0,

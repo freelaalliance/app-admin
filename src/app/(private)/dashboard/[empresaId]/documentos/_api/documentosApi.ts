@@ -33,28 +33,22 @@ export const documentosApi = {
   // GET /admin/documentos/empresas/:empresaId/categorias - Lista de categorias
   getCategorias: async (empresaId: string): Promise<Categoria[]> => {
     try {
-      console.log('🌐 API - Fazendo requisição getCategorias para:', empresaId)
-      console.log('🌐 API - URL:', `/admin/documentos/categorias/${empresaId}`)
       const { data } = await axiosInstance.get<Categoria[] | {
         status: boolean
         msg?: string
         dados: Categoria[]
         erro?: string | null
       }>(`/admin/documentos/categorias/${empresaId}`)
-      console.log('🌐 API - Resposta completa:', data)
 
       // Se data é um array, retorna direto
       if (Array.isArray(data)) {
-        console.log('🌐 API - Retornando array direto:', data)
         return data
       }
 
       // Se data é um objeto com a propriedade dados
-      console.log('🌐 API - data.dados:', data.dados)
-      console.log('🌐 API - Retornando:', data.dados ?? [])
       return data.dados ?? []
     } catch (error) {
-      console.error('❌ API - Erro ao buscar categorias:', error)
+      console.error('Erro ao buscar categorias:', error)
       return []
     }
   },
