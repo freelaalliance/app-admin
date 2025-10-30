@@ -48,6 +48,11 @@ export function NovaRevisaoDocumentoForm({ idDocumento }: NovaRevisaoDocumentoFo
       return
     }
 
+    console.log("📝 Dados da revisão sendo enviados para o backend:")
+    console.log("   - arquivo (UUID):", data.arquivo)
+    console.log("   - keyNovoArquivoDocumento (gerado no form):", keyNovoArquivoDocumento)
+    console.log("   - IMPORTANTE: O backend DEVE salvar este UUID no campo 'arquivoId'")
+
     await salvarRevisaoDocumento(data)
   }
 

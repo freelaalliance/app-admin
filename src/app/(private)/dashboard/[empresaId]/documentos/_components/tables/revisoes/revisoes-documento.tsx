@@ -59,7 +59,7 @@ export function TabelaRevisoesDocumento({
               <TableCell>
                 <Button
                   variant="default"
-                  onClick={() => handleDownload(revisao.arquivoUrl)}
+                  onClick={() => handleDownload(revisao.arquivoId)}
                 >
                   <Download className="size-4" />
                 </Button>

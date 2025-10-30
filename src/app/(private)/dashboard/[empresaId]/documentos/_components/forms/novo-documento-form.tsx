@@ -4,29 +4,28 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { DialogClose, DialogFooter } from '@/components/ui/dialog'
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from '@/components/ui/popover'
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { addYears, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { CalendarIcon, X } from 'lucide-react'
@@ -138,6 +137,11 @@ export function NovoDocumentoForm({
       toast.error('Por favor, selecione um arquivo para fazer o upload.')
       return
     }
+
+    console.log("📝 Dados do documento sendo enviados para o backend:")
+    console.log("   - arquivo (UUID):", data.arquivo)
+    console.log("   - keyNovoArquivoDocumento (gerado no form):", keyNovoArquivoDocumento)
+    console.log("   - IMPORTANTE: O backend DEVE salvar este UUID no campo 'arquivoId'")
 
     await salvarDocumentos(data)
   }

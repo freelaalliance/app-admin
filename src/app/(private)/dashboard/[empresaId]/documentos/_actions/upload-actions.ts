@@ -1,6 +1,6 @@
 "use server"
 
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { z } from "zod";
 
@@ -24,7 +24,7 @@ const s3 = new S3Client({
 
 export async function uploadFile(formData: FormData) {
   try {
-    
+
     const file = formData.get("file") as File
 
     if (!file) {
@@ -43,7 +43,7 @@ export async function uploadFile(formData: FormData) {
       })
     )
 
-    if(!resultUpload || resultUpload.$metadata.httpStatusCode !== 200) {
+    if (!resultUpload || resultUpload.$metadata.httpStatusCode !== 200) {
       throw new Error("Falha ao fazer upload do arquivo")
     }
 
@@ -62,13 +62,30 @@ export async function uploadFile(formData: FormData) {
 
 export async function downloadFile(fileName: string) {
   try {
-    
+    // Verifica se o fileName está vazio ou undefined
+    if (!fileName || fileName.trim() === '') {
+      throw new Error("Nome do arquivo não fornecido")
+    }
+
+    // Verifica se o arquivo existe no bucket
+    try {
+      const headCommand = new HeadObjectCommand({
+        Bucket: envS3.S3_BUCKET,
+        Key: fileName,
+      })
+
+      await s3.send(headCommand)
+    } catch (headError: any) {
+      console.error("Erro ao buscar arquivo no bucket:", headError.message)
+      return null
+    }
+
     const resultDownload = new GetObjectCommand({
       Bucket: envS3.S3_BUCKET,
       Key: fileName,
     })
 
-    const signedUrl = await getSignedUrl(s3, resultDownload, { expiresIn: 60 * 5 });
+    const signedUrl = await getSignedUrl(s3, resultDownload, { expiresIn: 3600 });
 
     return signedUrl
   } catch (error) {
