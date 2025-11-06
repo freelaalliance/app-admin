@@ -9,6 +9,10 @@ import { useRecebimentos } from './_hooks/useRecebimentosData'
 import { FiltroData } from './_components/FiltroData'
 import { TabelaRecebimentos } from './_components/TabelaRecebimentos'
 import { GraficoAvaliacoes } from './_components/GraficoAvaliacoes'
+import { Tabs } from '@radix-ui/react-tabs'
+import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TabelaItensAvaliacaoEmpresa } from './_components/tabelas/tabela-itens-avaliacao'
+import { useItensAvaliativosRecebimento } from './_hooks/useItensAvaliativosRecebimento'
 
 export default function RecebimentosPage() {
   const params = useParams()
@@ -23,6 +27,7 @@ export default function RecebimentosPage() {
     dataInicio,
     dataFim
   )
+  const { data: itensAvaliativosRecebimentoEmpresa, isFetching } = useItensAvaliativosRecebimento(empresaId)
 
   const estatisticas = dadosRecebimentos?.estatisticasRecebimentos
   const recebimentos = dadosRecebimentos?.recebimentos || []
@@ -32,7 +37,7 @@ export default function RecebimentosPage() {
     const mediaAvaliacao = rec.avaliacaoRecebimento.length > 0
       ? rec.avaliacaoRecebimento.reduce((acc, av) => acc + av.avaliacao, 0) / rec.avaliacaoRecebimento.length
       : 0
-    
+
     return {
       data: rec.recebidoEm,
       fornecedor: rec.pedido.fornecedor.nome,
@@ -101,17 +106,34 @@ export default function RecebimentosPage() {
         />
       </div>
 
-      {/* Filtro de Data */}
-      <FiltroData onFiltrar={handleFiltrar} />
+      <Tabs defaultValue="recebimentos">
+        <TabsList>
+          <TabsTrigger value="recebimentos">Recebimentos</TabsTrigger>
+          <TabsTrigger value="avaliacoes">Avaliações</TabsTrigger>
+        </TabsList>
+        <TabsContent value="recebimentos">
+          <div className="space-y-2">
+            {/* Filtro de Data */}
+            <FiltroData onFiltrar={handleFiltrar} />
 
-      {/* Gráfico de Avaliações */}
-      <GraficoAvaliacoes dados={dadosGrafico} isLoading={isLoading} />
+            {/* Gráfico de Avaliações */}
+            <GraficoAvaliacoes dados={dadosGrafico} isLoading={isLoading} />
 
-      {/* Tabela de Recebimentos */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Histórico de Recebimentos</h2>
-        <TabelaRecebimentos recebimentos={recebimentos} isLoading={isLoading} />
-      </div>
+            {/* Tabela de Recebimentos */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Histórico de Recebimentos</h2>
+              <TabelaRecebimentos recebimentos={recebimentos} isLoading={isLoading} />
+            </div>
+          </div>
+        </TabsContent>
+        <TabsContent value="avaliacoes">
+          <TabelaItensAvaliacaoEmpresa
+            empresaId={empresaId}
+            listaItensAvaliacao={itensAvaliativosRecebimentoEmpresa ?? []}
+            carregandoItens={isFetching}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

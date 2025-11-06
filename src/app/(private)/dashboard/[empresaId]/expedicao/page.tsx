@@ -1,11 +1,13 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { FileDown, Package, Truck, CheckCircle, Star } from 'lucide-react'
+import { Package, Truck, CheckCircle, Star } from 'lucide-react'
 import { IndicadorInfo } from '@/components/shared/IndicadorInfo'
 import { useExpedicoes, useResumoExpedicao, useMediaAvaliacao } from './_hooks/useExpedicaoData'
 import { ListaExpedicoes } from './_components/ListaExpedicoes'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TabelaItensAvaliacaoExpedicaoEmpresa } from './_components/tabelas/tabela-itens-avaliacao'
+import { useItensAvaliativosExpedicao } from './_hooks/useItensAvaliativosExpedicao'
 
 export default function ExpedicaoPage() {
   const params = useParams()
@@ -15,10 +17,7 @@ export default function ExpedicaoPage() {
   const { data: resumo, isLoading: isLoadingResumo } = useResumoExpedicao(empresaId)
   const { data: mediaData, isLoading: isLoadingMedia } = useMediaAvaliacao(empresaId)
 
-  const handleExportarPDF = () => {
-    // TODO: Implementar exportação para PDF
-    console.log('Exportar PDF - Expedição')
-  }
+  const { data: itensAvaliativos, isLoading: isLoadingItensAvaliativos } = useItensAvaliativosExpedicao(empresaId)
 
   return (
     <div className="space-y-6 p-6">
@@ -30,10 +29,6 @@ export default function ExpedicaoPage() {
             Acompanhe o status das expedições e entregas
           </p>
         </div>
-        <Button onClick={handleExportarPDF} variant="outline">
-          <FileDown className="mr-2 h-4 w-4" />
-          Exportar PDF
-        </Button>
       </div>
 
       {/* Cards de Indicadores */}
@@ -73,8 +68,22 @@ export default function ExpedicaoPage() {
 
       {/* Lista de Expedições */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Expedições Recentes</h2>
-        <ListaExpedicoes expedicoes={expedicoes || []} isLoading={isLoadingExpedicoes} />
+        <Tabs defaultChecked defaultValue="expedicoes">
+          <TabsList>
+            <TabsTrigger value="expedicoes">Expedições</TabsTrigger>
+            <TabsTrigger value="avaliacoes">Avaliações</TabsTrigger>
+          </TabsList>
+          <TabsContent value='expedicoes'>
+            <ListaExpedicoes expedicoes={expedicoes || []} isLoading={isLoadingExpedicoes} />
+          </TabsContent>
+          <TabsContent value='avaliacoes'>
+            <TabelaItensAvaliacaoExpedicaoEmpresa
+              empresaId={empresaId}
+              listaItensAvaliacaoExpedicao={itensAvaliativos?.dados || []}
+              carregandoItens={isLoadingItensAvaliativos}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )
