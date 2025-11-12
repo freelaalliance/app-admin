@@ -8,6 +8,7 @@ import { RemoverDocumentoAlertDialog } from '../dialogs/remover-documento-empres
 import { DadosDocumentoDialog } from '../dialogs/documento-dialog';
 import { DocumentoType } from '../../_types/documentosTypes';
 import { downloadFile } from '../../_actions/upload-actions';
+import { toast } from 'sonner';
 //import { RemoverDocumentoAlertDialog } from '@/app/modulo/administrativo/modulos/documentos/_components/dialogs/remover-documento-empresa-dialog';
 
 interface MenuTabelaDocumentosEmpresaProps {
@@ -17,15 +18,19 @@ interface MenuTabelaDocumentosEmpresaProps {
 export function MenuTabelaDocumentosEmpresaAdmin({ documento }: MenuTabelaDocumentosEmpresaProps) {
 
   const handleDownload = async (arquivo: string) => {
-    const url = await downloadFile(arquivo);
+    try {
+      const result = await downloadFile(arquivo);
 
-    if (url) {
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', arquivo);
-      link.setAttribute('target', '_blank');
-      document.body.appendChild(link);
-      link.click();
+      if (!result.success) {
+        toast.error(result.message || 'Erro ao baixar arquivo');
+        return;
+      }
+
+      // Abre o arquivo em uma nova aba (bom para visualizar PDFs)
+      window.open(result.url, '_blank');
+      toast.success('Download iniciado!');
+    } catch (error) {
+      toast.error('Erro ao baixar arquivo. Tente novamente.');
     }
   }
 

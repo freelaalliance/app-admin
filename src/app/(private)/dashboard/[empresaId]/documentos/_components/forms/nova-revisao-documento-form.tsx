@@ -15,7 +15,7 @@ import { useParams } from "next/navigation"
 
 const schemaNovaRevisaoDocumentoForm = z.object({
   id: z.string().uuid(),
-  arquivo: z.string(),
+  arquivo: z.string().min(1), // Agora aceita qualquer string (keyCompleta com caminho e extensão)
 })
 
 export type NovaRevisaoDocumentoFormType = z.infer<typeof schemaNovaRevisaoDocumentoForm>
@@ -24,10 +24,9 @@ export interface NovaRevisaoDocumentoFormProps {
   idDocumento: string
 }
 
-const keyNovoArquivoDocumento = crypto.randomUUID()
-
 export function NovaRevisaoDocumentoForm({ idDocumento }: NovaRevisaoDocumentoFormProps) {
   const [arquivoSelecionado, selecionarArquivo] = useState<boolean>(false)
+  const [arquivoKeyCompleta, setArquivoKeyCompleta] = useState<string | null>(null)
   const params = useParams()
   const empresaId = params.empresaId as string
 
@@ -35,7 +34,7 @@ export function NovaRevisaoDocumentoForm({ idDocumento }: NovaRevisaoDocumentoFo
     resolver: zodResolver(schemaNovaRevisaoDocumentoForm),
     defaultValues: {
       id: idDocumento,
-      arquivo: keyNovoArquivoDocumento,
+      arquivo: '', // Será preenchido no callback do upload
     },
     mode: 'onChange',
   })
@@ -48,24 +47,30 @@ export function NovaRevisaoDocumentoForm({ idDocumento }: NovaRevisaoDocumentoFo
       return
     }
 
-    console.log("📝 Dados da revisão sendo enviados para o backend:")
-    console.log("   - arquivo (UUID):", data.arquivo)
-    console.log("   - keyNovoArquivoDocumento (gerado no form):", keyNovoArquivoDocumento)
-    console.log("   - IMPORTANTE: O backend DEVE salvar este UUID no campo 'arquivoId'")
-
     await salvarRevisaoDocumento(data)
   }
 
   const cancelar = async () => {
-    if(arquivoSelecionado) await deleteFile(keyNovoArquivoDocumento)
+    if (arquivoKeyCompleta) {
+      await deleteFile(arquivoKeyCompleta)
+    }
     formNovaRevisaoDocumento.reset()
+  }
+
+  const handleUploadSuccess = (uuid: string, keyCompleta: string) => {
+    // Salva a keyCompleta (com caminho e extensão) no formulário
+    formNovaRevisaoDocumento.setValue('arquivo', keyCompleta)
   }
 
   return (
     <Form {...formNovaRevisaoDocumento}>
       <form className="space-y-4" onSubmit={formNovaRevisaoDocumento.handleSubmit(handleSubmit)}>
         <div className="grid space-y-2">
-          <UploadForm keyArquivo={keyNovoArquivoDocumento} arquivoSelecionado={selecionarArquivo} />
+          <UploadForm 
+            prefixo={`documentos/${empresaId}`}
+            onUploadSuccess={handleUploadSuccess}
+            arquivoSelecionado={selecionarArquivo} 
+          />
         </div>
 
         <DialogFooter className='gap-2'>

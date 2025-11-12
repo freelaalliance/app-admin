@@ -94,8 +94,6 @@ export interface NovoDocumentoFormProps {
   empresaId?: string
 }
 
-const keyNovoArquivoDocumento = crypto.randomUUID()
-
 export function NovoDocumentoForm({
   listaUsuarios,
   listaCategoriasDocumentos,
@@ -110,7 +108,7 @@ export function NovoDocumentoForm({
       copias: 0,
       retencao: addYears(new Date(), 5),
       usuariosAcessos: [],
-      arquivo: keyNovoArquivoDocumento,
+      arquivo: '',
       empresaId,
     },
     mode: 'onChange',
@@ -128,7 +126,7 @@ export function NovoDocumentoForm({
   const { mutateAsync: salvarDocumentos } = useSetDocumento(empresaId || '')
 
   const cancelar = async () => {
-    if(arquivoSelecionado) await deleteFile(keyNovoArquivoDocumento)
+    if(arquivoSelecionado) await deleteFile(formNovoDocumento.getValues('arquivo'))
     formNovoDocumento.reset()
   }
 
@@ -138,12 +136,11 @@ export function NovoDocumentoForm({
       return
     }
 
-    console.log("📝 Dados do documento sendo enviados para o backend:")
-    console.log("   - arquivo (UUID):", data.arquivo)
-    console.log("   - keyNovoArquivoDocumento (gerado no form):", keyNovoArquivoDocumento)
-    console.log("   - IMPORTANTE: O backend DEVE salvar este UUID no campo 'arquivoId'")
-
     await salvarDocumentos(data)
+  }
+
+  const handleUploadSuccess = (uuid: string, keyCompleta: string) => {
+    formNovoDocumento.setValue('arquivo', keyCompleta)
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -417,7 +414,11 @@ export function NovoDocumentoForm({
               )}
             </div>
           </div>
-          <UploadForm keyArquivo={keyNovoArquivoDocumento} arquivoSelecionado={selecionarArquivo} />
+          <UploadForm 
+            prefixo={`documentos/${empresaId}`}
+            onUploadSuccess={handleUploadSuccess}
+            arquivoSelecionado={selecionarArquivo} 
+          />
         </div>
         <DialogFooter className='gap-2'>
           <DialogClose asChild>
