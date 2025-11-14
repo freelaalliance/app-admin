@@ -38,27 +38,31 @@ function getS3Client(): S3Client {
     return s3Client
   }
 
-  try {
-    s3Config = schemaS3Config.parse({
-      S3_URL: process.env.S3_URL,
-      S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID,
-      S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY,
-      S3_BUCKET: process.env.S3_BUCKET,
-    })
+  const parseResult = schemaS3Config.safeParse({
+    S3_URL: process.env.S3_URL,
+    S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID,
+    S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY,
+    S3_BUCKET: process.env.S3_BUCKET,
+  })
 
-    s3Client = new S3Client({
-      region: "auto",
-      endpoint: s3Config.S3_URL,
-      credentials: {
-        accessKeyId: s3Config.S3_ACCESS_KEY_ID,
-        secretAccessKey: s3Config.S3_SECRET_ACCESS_KEY,
-      },
-    })
-
-    return s3Client
-  } catch (error) {
-    throw new Error("Falha na configuração do S3")
+  if (!parseResult.success) {
+    const errorMessages = parseResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
+    console.error("[getS3Client] Erro de configuração:", errorMessages)
+    throw new Error(`Configuração do S3 inválida: ${errorMessages}`)
   }
+
+  s3Config = parseResult.data
+
+  s3Client = new S3Client({
+    region: "auto",
+    endpoint: s3Config.S3_URL,
+    credentials: {
+      accessKeyId: s3Config.S3_ACCESS_KEY_ID,
+      secretAccessKey: s3Config.S3_SECRET_ACCESS_KEY,
+    },
+  })
+
+  return s3Client
 }
 
 /**
@@ -106,8 +110,20 @@ export async function uploadFile(formData: FormData): Promise<UploadResult> {
     const buffer = Buffer.from(arrayBuffer)
 
     // Obtém o cliente S3 singleton
-    const client = getS3Client()
-    const config = getS3Config()
+    let client: S3Client
+    let config: S3Config
+
+    try {
+      client = getS3Client()
+      config = getS3Config()
+    } catch (configError) {
+      console.error("[uploadFile] Erro na configuração do S3:", configError)
+      return {
+        success: false,
+        error: "Configuração do S3 inválida",
+        message: "Erro ao inicializar conexão com o serviço de armazenamento",
+      }
+    }
 
     // Envia o arquivo para o S3
     const command = new PutObjectCommand({
@@ -122,6 +138,7 @@ export async function uploadFile(formData: FormData): Promise<UploadResult> {
 
     // Verifica o status da resposta
     if (response.$metadata.httpStatusCode !== 200) {
+      console.error("[uploadFile] Status inesperado:", response.$metadata.httpStatusCode)
       return {
         success: false,
         error: "Falha ao fazer upload do arquivo",
@@ -136,6 +153,7 @@ export async function uploadFile(formData: FormData): Promise<UploadResult> {
       message: "Upload realizado com sucesso",
     }
   } catch (error) {
+    console.error("[uploadFile] Erro durante upload:", error)
 
     const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
 
@@ -160,8 +178,20 @@ export async function downloadFile(fileName: string): Promise<DownloadResult> {
       }
     }
 
-    const client = getS3Client()
-    const config = getS3Config()
+    let client: S3Client
+    let config: S3Config
+
+    try {
+      client = getS3Client()
+      config = getS3Config()
+    } catch (configError) {
+      console.error("[downloadFile] Erro na configuração do S3:", configError)
+      return {
+        success: false,
+        error: "Configuração do S3 inválida",
+        message: "Erro ao inicializar conexão com o serviço de armazenamento",
+      }
+    }
 
     // Verifica se o arquivo existe antes de gerar a URL
     try {
@@ -172,6 +202,7 @@ export async function downloadFile(fileName: string): Promise<DownloadResult> {
 
       await client.send(headCommand)
     } catch (error) {
+      console.error("[downloadFile] Arquivo não encontrado:", fileName, error)
       return {
         success: false,
         error: "Arquivo não encontrado",
@@ -195,6 +226,7 @@ export async function downloadFile(fileName: string): Promise<DownloadResult> {
       message: "URL de download gerada com sucesso",
     }
   } catch (error) {
+    console.error("[downloadFile] Erro durante download:", error)
 
     const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
 
@@ -218,8 +250,20 @@ export async function deleteFile(fileName: string): Promise<DeleteResult> {
       }
     }
 
-    const client = getS3Client()
-    const config = getS3Config()
+    let client: S3Client
+    let config: S3Config
+
+    try {
+      client = getS3Client()
+      config = getS3Config()
+    } catch (configError) {
+      console.error("[deleteFile] Erro na configuração do S3:", configError)
+      return {
+        success: false,
+        error: "Configuração do S3 inválida",
+        message: "Erro ao inicializar conexão com o serviço de armazenamento",
+      }
+    }
 
     // Executa a exclusão
     const command = new DeleteObjectCommand({
@@ -233,6 +277,7 @@ export async function deleteFile(fileName: string): Promise<DeleteResult> {
     const isSuccess = response.$metadata.httpStatusCode === 204
 
     if (!isSuccess) {
+      console.error("[deleteFile] Status inesperado:", response.$metadata.httpStatusCode)
       return {
         success: false,
         error: "Falha ao excluir arquivo",
@@ -245,6 +290,8 @@ export async function deleteFile(fileName: string): Promise<DeleteResult> {
       message: "Arquivo excluído com sucesso",
     }
   } catch (error) {
+    console.error("[deleteFile] Erro durante exclusão:", error)
+
     const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
 
     return {
