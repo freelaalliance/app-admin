@@ -68,9 +68,10 @@ export type DeleteResult =
 
 /**
  * Dados necessários para upload de arquivo
+ * Nota: Em Server Actions, File é recebido via FormData como Blob
  */
 export type UploadFileInput = {
-  file: File
+  file: Blob | File
   prefixo?: string // Prefixo/pasta opcional
 }
 

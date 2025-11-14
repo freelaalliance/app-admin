@@ -23,11 +23,6 @@ const schemaS3Config = z.object({
   S3_BUCKET: z.string().min(1, "Nome do bucket é obrigatório"),
 })
 
-const schemaUploadFile = z.object({
-  file: z.instanceof(File, { message: "Arquivo inválido" }),
-  prefixo: z.string().optional().nullable(),
-})
-
 const schemaFileName = z.string().min(1, "Nome do arquivo é obrigatório")
 
 let s3Client: S3Client | null = null
@@ -47,7 +42,6 @@ function getS3Client(): S3Client {
 
   if (!parseResult.success) {
     const errorMessages = parseResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
-    console.error("[getS3Client] Erro de configuração:", errorMessages)
     throw new Error(`Configuração do S3 inválida: ${errorMessages}`)
   }
 
@@ -77,32 +71,32 @@ function getS3Config(): S3Config {
 
 export async function uploadFile(formData: FormData): Promise<UploadResult> {
   try {
-    // Validação dos dados de entrada
-    const parseResult = schemaUploadFile.safeParse({
-      file: formData.get("file"),
-      prefixo: formData.get("prefixo"),
-    })
+    // Extrai e valida os dados do FormData
+    const file = formData.get("file")
+    const prefixo = formData.get("prefixo")
 
-    if (!parseResult.success) {
-      const errorMessage = parseResult.error.errors[0]?.message || "Dados inválidos"
+    // Validação manual do arquivo (sem usar z.instanceof(File))
+    if (!file || !(file instanceof Blob)) {
       return {
         success: false,
-        error: errorMessage,
-        message: errorMessage,
+        error: "Arquivo inválido",
+        message: "Nenhum arquivo foi enviado ou o formato é inválido",
       }
     }
 
-    const { file, prefixo } = parseResult.data
+    // Validação do prefixo (opcional)
+    const prefixoValidado = typeof prefixo === 'string' ? prefixo : null
 
     // Gera UUID para o arquivo
     const uuid = crypto.randomUUID()
 
     // Extrai a extensão do arquivo original
-    const extensao = file.name.match(/\.[^.]+$/)?.[0] || ''
+    const fileName = (file as File).name || 'arquivo'
+    const extensao = fileName.match(/\.[^.]+$/)?.[0] || ''
 
     // Monta a chave do arquivo (prefixo/uuid.extensao)
-    const keyArquivo = prefixo && prefixo.trim()
-      ? `${prefixo}/${uuid}${extensao}`
+    const keyArquivo = prefixoValidado && prefixoValidado.trim()
+      ? `${prefixoValidado}/${uuid}${extensao}`
       : `${uuid}${extensao}`
 
     // Converte o arquivo para buffer
@@ -130,7 +124,7 @@ export async function uploadFile(formData: FormData): Promise<UploadResult> {
       Bucket: config.S3_BUCKET,
       Key: keyArquivo,
       Body: buffer,
-      ContentType: file.type,
+      ContentType: (file as File).type || 'application/octet-stream',
       ContentLength: file.size,
     })
 
@@ -185,7 +179,6 @@ export async function downloadFile(fileName: string): Promise<DownloadResult> {
       client = getS3Client()
       config = getS3Config()
     } catch (configError) {
-      console.error("[downloadFile] Erro na configuração do S3:", configError)
       return {
         success: false,
         error: "Configuração do S3 inválida",
@@ -202,7 +195,6 @@ export async function downloadFile(fileName: string): Promise<DownloadResult> {
 
       await client.send(headCommand)
     } catch (error) {
-      console.error("[downloadFile] Arquivo não encontrado:", fileName, error)
       return {
         success: false,
         error: "Arquivo não encontrado",
@@ -226,8 +218,6 @@ export async function downloadFile(fileName: string): Promise<DownloadResult> {
       message: "URL de download gerada com sucesso",
     }
   } catch (error) {
-    console.error("[downloadFile] Erro durante download:", error)
-
     const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
 
     return {
@@ -257,7 +247,6 @@ export async function deleteFile(fileName: string): Promise<DeleteResult> {
       client = getS3Client()
       config = getS3Config()
     } catch (configError) {
-      console.error("[deleteFile] Erro na configuração do S3:", configError)
       return {
         success: false,
         error: "Configuração do S3 inválida",
@@ -277,7 +266,6 @@ export async function deleteFile(fileName: string): Promise<DeleteResult> {
     const isSuccess = response.$metadata.httpStatusCode === 204
 
     if (!isSuccess) {
-      console.error("[deleteFile] Status inesperado:", response.$metadata.httpStatusCode)
       return {
         success: false,
         error: "Falha ao excluir arquivo",
@@ -290,8 +278,6 @@ export async function deleteFile(fileName: string): Promise<DeleteResult> {
       message: "Arquivo excluído com sucesso",
     }
   } catch (error) {
-    console.error("[deleteFile] Erro durante exclusão:", error)
-
     const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
 
     return {
