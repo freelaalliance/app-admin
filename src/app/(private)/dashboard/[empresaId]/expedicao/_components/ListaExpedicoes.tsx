@@ -4,21 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Expedicao } from '../_types/expedicaoTypes'
-import { Package, Truck, Calendar, Star, Weight, Box } from 'lucide-react'
+import { Package, Calendar, Star } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 interface ListaExpedicoesProps {
   expedicoes: Expedicao[]
   isLoading: boolean
-}
-
-const statusConfig = {
-  pendente: { label: 'Pendente', variant: 'secondary' as const, icon: Package },
-  em_preparacao: { label: 'Em Preparação', variant: 'default' as const, icon: Box },
-  expedida: { label: 'Expedida', variant: 'default' as const, icon: Truck },
-  entregue: { label: 'Entregue', variant: 'outline' as const, icon: Package },
-  cancelada: { label: 'Cancelada', variant: 'destructive' as const, icon: Package },
 }
 
 export function ListaExpedicoes({ expedicoes, isLoading }: ListaExpedicoesProps) {
@@ -46,9 +38,6 @@ export function ListaExpedicoes({ expedicoes, isLoading }: ListaExpedicoesProps)
   return (
     <div className="space-y-3">
       {expedicoes.map((exp) => {
-        const config = statusConfig[exp.status]
-        const StatusIcon = config.icon
-
         return (
           <Card key={exp.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
@@ -56,77 +45,50 @@ export function ListaExpedicoes({ expedicoes, isLoading }: ListaExpedicoesProps)
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <CardTitle className="text-lg">
-                      Expedição #{exp.numero_expedicao}
+                      Expedição #{exp.venda.numeroVenda}
                     </CardTitle>
-                    <Badge variant={config.variant}>
-                      <StatusIcon className="h-3 w-3 mr-1" />
-                      {config.label}
+                    <Badge variant="default">
+                      <Package className="h-3 w-3 mr-1" />
+                      Expedida
                     </Badge>
-                    {exp.avaliacao && (
+                    {exp.avaliacaoExpedicao !== null && (
                       <Badge variant="outline" className="gap-1">
                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        {exp.avaliacao.toFixed(1)}
+                        {exp.avaliacaoExpedicao.toFixed(1)}
                       </Badge>
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    <strong>Pedido:</strong> #{exp.numero_pedido} • <strong>Cliente:</strong>{' '}
-                    {exp.cliente}
+                    <strong>Venda:</strong> #{exp.venda.numeroVenda} • <strong>Cliente:</strong>{' '}
+                    {exp.venda.cliente.nome}
                   </p>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="h-4 w-4" />
                   <div>
                     <p className="font-medium text-foreground">
-                      {exp.data_expedicao
-                        ? format(new Date(exp.data_expedicao), 'dd/MM/yyyy', { locale: ptBR })
-                        : 'Não expedida'}
+                      {format(new Date(exp.expedidoEm), "dd/MM/yyyy 'às' HH:mm", {
+                        locale: ptBR,
+                      })}
                     </p>
-                    <p className="text-xs">
-                      Previsão:{' '}
-                      {format(new Date(exp.data_previsao), 'dd/MM/yyyy', { locale: ptBR })}
-                    </p>
+                    <p className="text-xs">Data da expedição</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Package className="h-4 w-4" />
                   <div>
-                    <p className="font-medium text-foreground">{exp.quantidade_itens} itens</p>
-                    <p className="text-xs">Quantidade de produtos</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Weight className="h-4 w-4" />
-                  <div>
-                    <p className="font-medium text-foreground">{exp.peso_total_kg} kg</p>
-                    <p className="text-xs">{exp.volume_m3.toFixed(2)} m³</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Truck className="h-4 w-4" />
-                  <div>
                     <p className="font-medium text-foreground">
-                      {exp.transportadora || 'Não definida'}
+                      Responsável: {exp.usuario || 'Não informado'}
                     </p>
-                    {exp.codigo_rastreio && (
-                      <p className="text-xs font-mono">{exp.codigo_rastreio}</p>
-                    )}
+                    <p className="text-xs">Usuário que expediu</p>
                   </div>
                 </div>
               </div>
-
-              {exp.observacoes && (
-                <div className="mt-3 pt-3 border-t">
-                  <p className="text-sm text-muted-foreground italic">{exp.observacoes}</p>
-                </div>
-              )}
             </CardContent>
           </Card>
         )

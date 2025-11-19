@@ -1,6 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table'
-import type { ItemAvaliacaoExpedicaoType } from '../../../_api/AdmVendas'
 import { MenuTabelaItensAvaliacaoExpedicao } from './menu-tabela-itens-expedicao'
+import { ItemAvaliacaoExpedicaoType } from '../../_api/itensAvaliativoApi'
 
 export const colunasItensAvaliacaoExpedicao: ColumnDef<ItemAvaliacaoExpedicaoType>[] =
   [
