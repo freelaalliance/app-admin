@@ -39,7 +39,6 @@ export default function ExpedicaoPage() {
           subtitulo="Aguardando expedição"
           icon={Package}
           carregandoInformacao={isLoadingResumo}
-          className="border-l-4 border-l-yellow-500"
         />
         <IndicadorInfo
           titulo="Expedições Realizadas"
@@ -47,7 +46,6 @@ export default function ExpedicaoPage() {
           subtitulo="Já despachadas"
           icon={Truck}
           carregandoInformacao={isLoadingResumo}
-          className="border-l-4 border-l-blue-500"
         />
         <IndicadorInfo
           titulo="Total de Expedições"
@@ -62,7 +60,6 @@ export default function ExpedicaoPage() {
           subtitulo="Avaliações de expedição"
           icon={Star}
           carregandoInformacao={isLoadingMedia}
-          className="border-l-4 border-l-green-500"
         />
       </div>
 
