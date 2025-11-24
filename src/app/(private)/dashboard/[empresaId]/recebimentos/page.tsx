@@ -36,28 +36,9 @@ export default function RecebimentosPage() {
   }
   const recebimentos = dadosRecebimentos?.recebimentos ?? []
 
-  // Calcular dados para o gráfico a partir das avaliações dos recebimentos
-  const dadosGrafico = recebimentos.map((rec) => {
-    const avaliacoes = rec?.AvaliacaoRecebimento ?? []
-    const mediaAvaliacao = avaliacoes.length > 0
-      ? avaliacoes.reduce((acc, av) => acc + (av?.avaliacao ?? 0), 0) / avaliacoes.length
-      : 0
-
-    return {
-      data: rec?.recebidoEm ?? new Date().toISOString(),
-      fornecedor: rec?.pedido?.fornecedor?.nome ?? 'Não informado',
-      avaliacao: mediaAvaliacao,
-    }
-  })
-
   const handleFiltrar = (inicio?: string, fim?: string) => {
     setDataInicio(inicio)
     setDataFim(fim)
-  }
-
-  const handleExportarPDF = () => {
-    // TODO: Implementar exportação para PDF
-    console.log('Exportar PDF - Recebimentos')
   }
 
   return (
@@ -116,10 +97,6 @@ export default function RecebimentosPage() {
           <div className="space-y-2">
             {/* Filtro de Data */}
             <FiltroData onFiltrar={handleFiltrar} />
-
-            {/* Gráfico de Avaliações */}
-            <GraficoAvaliacoes dados={dadosGrafico} isLoading={isLoading} />
-
             {/* Tabela de Recebimentos */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Histórico de Recebimentos</h2>

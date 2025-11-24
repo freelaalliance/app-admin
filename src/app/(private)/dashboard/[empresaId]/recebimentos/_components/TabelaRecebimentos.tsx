@@ -43,16 +43,6 @@ export function TabelaRecebimentos({ recebimentos, isLoading }: TabelaRecebiment
         // Tratativas de null/undefined com optional chaining e nullish coalescing
         const avaliacoes = recebimento?.AvaliacaoRecebimento ?? []
 
-        // Garantir que sempre trabalhamos com números válidos
-        const notasValidas = avaliacoes
-          .map(av => av?.notaAvaliacao)
-          .filter((nota): nota is number => typeof nota === 'number' && !isNaN(nota))
-
-        const mediaAvaliacao = notasValidas.length > 0
-          ? notasValidas.reduce((acc, nota) => acc + nota, 0) / notasValidas.length
-          : 0
-
-
         return (
           <Card key={recebimento?.id ?? Math.random()} className="p-4 hover:shadow-md transition-shadow">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
