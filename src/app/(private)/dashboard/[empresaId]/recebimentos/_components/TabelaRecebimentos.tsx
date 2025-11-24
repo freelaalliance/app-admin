@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
-import { Star, Package } from 'lucide-react'
+import { Star } from 'lucide-react'
 import type { Recebimento } from '../_types/recebimentosTypes'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -42,13 +42,19 @@ export function TabelaRecebimentos({ recebimentos, isLoading }: TabelaRecebiment
       {recebimentosValidos.map((recebimento) => {
         // Tratativas de null/undefined com optional chaining e nullish coalescing
         const avaliacoes = recebimento?.AvaliacaoRecebimento ?? []
-        const mediaAvaliacao = avaliacoes.length > 0
-          ? avaliacoes.reduce((acc, av) => acc + (av?.notaAvaliacao ?? 0), 0) / avaliacoes.length
+        
+        // Garantir que sempre trabalhamos com números válidos
+        const notasValidas = avaliacoes
+          .map(av => av?.notaAvaliacao)
+          .filter((nota): nota is number => typeof nota === 'number' && !isNaN(nota))
+        
+        const mediaAvaliacao = notasValidas.length > 0
+          ? notasValidas.reduce((acc, nota) => acc + nota, 0) / notasValidas.length
           : 0
         
-        const avaliacoesOrdenadas = [...avaliacoes].sort((a, b) => (a?.notaAvaliacao ?? 0) - (b?.notaAvaliacao ?? 0))
-        const avaliacaoMinima = avaliacoesOrdenadas[0]?.notaAvaliacao ?? 0
-        const avaliacaoMaxima = avaliacoesOrdenadas[avaliacoesOrdenadas.length - 1]?.notaAvaliacao ?? 0
+        const avaliacoesOrdenadas = [...notasValidas].sort((a, b) => a - b)
+        const avaliacaoMinima = avaliacoesOrdenadas[0] ?? 0
+        const avaliacaoMaxima = avaliacoesOrdenadas[avaliacoesOrdenadas.length - 1] ?? 0
         
         return (
           <Card key={recebimento?.id ?? Math.random()} className="p-4 hover:shadow-md transition-shadow">
@@ -86,21 +92,21 @@ export function TabelaRecebimentos({ recebimentos, isLoading }: TabelaRecebiment
                     <p className="text-muted-foreground mb-1">Mínima</p>
                     <Badge variant="outline" className="bg-red-50 flex items-center gap-1">
                       <Star className="h-3 w-3 fill-red-400 text-red-400" />
-                      {avaliacaoMinima.toFixed(1)}
+                      {Number(avaliacaoMinima).toFixed(1)}
                     </Badge>
                   </div>
                   <div className="text-center">
                     <p className="text-muted-foreground mb-1">Média</p>
                     <Badge variant="outline" className="bg-yellow-50 flex items-center gap-1">
                       <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      {mediaAvaliacao.toFixed(1)}
+                      {Number(mediaAvaliacao).toFixed(1)}
                     </Badge>
                   </div>
                   <div className="text-center">
                     <p className="text-muted-foreground mb-1">Máxima</p>
                     <Badge variant="outline" className="bg-green-50 flex items-center gap-1">
                       <Star className="h-3 w-3 fill-green-400 text-green-400" />
-                      {avaliacaoMaxima.toFixed(1)}
+                      {Number(avaliacaoMaxima).toFixed(1)}
                     </Badge>
                   </div>
                 </div>
