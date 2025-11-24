@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { FileDown, Package, CheckCircle, XCircle, Star } from 'lucide-react'
+import { Package, CheckCircle, XCircle, Star } from 'lucide-react'
 import { IndicadorInfo } from '@/components/shared/IndicadorInfo'
 import { useRecebimentos } from './_hooks/useRecebimentosData'
 import { FiltroData } from './_components/FiltroData'
@@ -39,7 +38,7 @@ export default function RecebimentosPage() {
 
   // Calcular dados para o gráfico a partir das avaliações dos recebimentos
   const dadosGrafico = recebimentos.map((rec) => {
-    const avaliacoes = rec?.avaliacaoRecebimento ?? []
+    const avaliacoes = rec?.AvaliacaoRecebimento ?? []
     const mediaAvaliacao = avaliacoes.length > 0
       ? avaliacoes.reduce((acc, av) => acc + (av?.avaliacao ?? 0), 0) / avaliacoes.length
       : 0

@@ -41,35 +41,23 @@ export function TabelaRecebimentos({ recebimentos, isLoading }: TabelaRecebiment
     <div className="space-y-4">
       {recebimentosValidos.map((recebimento) => {
         // Tratativas de null/undefined com optional chaining e nullish coalescing
-        const avaliacoes = recebimento?.avaliacaoRecebimento ?? []
+        const avaliacoes = recebimento?.AvaliacaoRecebimento ?? []
         const mediaAvaliacao = avaliacoes.length > 0
-          ? avaliacoes.reduce((acc, av) => acc + (av?.avaliacao ?? 0), 0) / avaliacoes.length
+          ? avaliacoes.reduce((acc, av) => acc + (av?.notaAvaliacao ?? 0), 0) / avaliacoes.length
           : 0
         
-        const avaliacoesOrdenadas = [...avaliacoes].sort((a, b) => (a?.avaliacao ?? 0) - (b?.avaliacao ?? 0))
-        const avaliacaoMinima = avaliacoesOrdenadas[0]?.avaliacao ?? 0
-        const avaliacaoMaxima = avaliacoesOrdenadas[avaliacoesOrdenadas.length - 1]?.avaliacao ?? 0
+        const avaliacoesOrdenadas = [...avaliacoes].sort((a, b) => (a?.notaAvaliacao ?? 0) - (b?.notaAvaliacao ?? 0))
+        const avaliacaoMinima = avaliacoesOrdenadas[0]?.notaAvaliacao ?? 0
+        const avaliacaoMaxima = avaliacoesOrdenadas[avaliacoesOrdenadas.length - 1]?.notaAvaliacao ?? 0
         
         return (
           <Card key={recebimento?.id ?? Math.random()} className="p-4 hover:shadow-md transition-shadow">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               {/* Informações Principais */}
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="font-semibold text-lg">
-                    {recebimento?.pedido?.fornecedor?.nome ?? 'Fornecedor não informado'}
-                  </h3>
-                  <Badge variant="default" className="bg-green-500 hover:bg-green-600">
-                    <Package className="h-3 w-3 mr-1" />
-                    Recebido
-                  </Badge>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-muted-foreground">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-muted-foreground">
                   <div>
-                    <span className="font-medium">Pedido:</span> #{recebimento?.pedido?.numPedido ?? 'N/A'}
-                  </div>
-                  <div>
-                    <span className="font-medium">Código:</span> {recebimento?.pedido?.codigo ?? 'N/A'}
+                    <span className="font-medium">Pedido:</span> #{recebimento?.compra?.numPedido ?? 'N/A'}
                   </div>
                   <div>
                     <span className="font-medium">Data:</span>{' '}

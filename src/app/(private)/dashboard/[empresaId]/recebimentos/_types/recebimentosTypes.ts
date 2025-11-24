@@ -10,22 +10,15 @@ export interface Recebimento {
   id: string
   recebidoEm: Date | string
   observacoes: string | null
-  pedido: {
-    id: string
+  compra: {
     numPedido: number
-    codigo: string
-    fornecedor: {
-      nome: string
-      documento: string
-    }
   }
   usuario: {
     nome: string
   }
-  avaliacaoRecebimento: Array<{
-    id: string
-    avaliacao: number
-    item: {
+  AvaliacaoRecebimento: Array<{
+    notaAvaliacao: number
+    itemAvaliativo: {
       descricao: string
     }
   }>
