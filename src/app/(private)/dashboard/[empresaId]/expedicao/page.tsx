@@ -56,7 +56,7 @@ export default function ExpedicaoPage() {
         />
         <IndicadorInfo
           titulo="Média de Avaliação"
-          info={mediaData && mediaData.media ? Number(mediaData.media).toFixed(1) : '0.0'}
+          info={mediaData && mediaData.media ? Number(mediaData.media).toFixed(1) : '0.00'}
           subtitulo="Avaliações de expedição"
           icon={Star}
           carregandoInformacao={isLoadingMedia}

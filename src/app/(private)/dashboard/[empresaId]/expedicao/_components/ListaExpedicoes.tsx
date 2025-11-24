@@ -51,10 +51,10 @@ export function ListaExpedicoes({ expedicoes, isLoading }: ListaExpedicoesProps)
                       <Package className="h-3 w-3 mr-1" />
                       Expedida
                     </Badge>
-                    {exp.avaliacaoExpedicao !== null && (
+                    {(exp && exp.avaliacaoExpedicao) && (
                       <Badge variant="outline" className="gap-1">
                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        {exp.avaliacaoExpedicao.toFixed(1)}
+                        {Number(exp.avaliacaoExpedicao).toFixed(2)}
                       </Badge>
                     )}
                   </div>
