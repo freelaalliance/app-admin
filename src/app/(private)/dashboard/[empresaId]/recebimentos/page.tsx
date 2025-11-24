@@ -29,18 +29,24 @@ export default function RecebimentosPage() {
   )
   const { data: itensAvaliativosRecebimentoEmpresa, isFetching } = useItensAvaliativosRecebimento(empresaId)
 
-  const estatisticas = dadosRecebimentos?.estatisticasRecebimentos
-  const recebimentos = dadosRecebimentos?.recebimentos || []
+  const estatisticas = dadosRecebimentos?.estatisticasRecebimentos ?? {
+    totalRecebimentos: 0,
+    recebimentosNoMes: 0,
+    recebimentosNaSemana: 0,
+    mediaAvaliacao: 0,
+  }
+  const recebimentos = dadosRecebimentos?.recebimentos ?? []
 
   // Calcular dados para o gráfico a partir das avaliações dos recebimentos
   const dadosGrafico = recebimentos.map((rec) => {
-    const mediaAvaliacao = rec.avaliacaoRecebimento.length > 0
-      ? rec.avaliacaoRecebimento.reduce((acc, av) => acc + av.avaliacao, 0) / rec.avaliacaoRecebimento.length
+    const avaliacoes = rec?.avaliacaoRecebimento ?? []
+    const mediaAvaliacao = avaliacoes.length > 0
+      ? avaliacoes.reduce((acc, av) => acc + (av?.avaliacao ?? 0), 0) / avaliacoes.length
       : 0
 
     return {
-      data: rec.recebidoEm,
-      fornecedor: rec.pedido.fornecedor.nome,
+      data: rec?.recebidoEm ?? new Date().toISOString(),
+      fornecedor: rec?.pedido?.fornecedor?.nome ?? 'Não informado',
       avaliacao: mediaAvaliacao,
     }
   })
@@ -65,24 +71,20 @@ export default function RecebimentosPage() {
             Acompanhe os recebimentos e avaliações de fornecedores
           </p>
         </div>
-        <Button onClick={handleExportarPDF} variant="outline">
-          <FileDown className="mr-2 h-4 w-4" />
-          Exportar PDF
-        </Button>
       </div>
 
       {/* Cards de Indicadores */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <IndicadorInfo
           titulo="Total de Recebimentos"
-          info={estatisticas?.totalRecebimentos?.toString() || '0'}
+          info={(estatisticas?.totalRecebimentos ?? 0).toString()}
           subtitulo="Todos os recebimentos"
           icon={Package}
           carregandoInformacao={isLoading}
         />
         <IndicadorInfo
           titulo="Recebimentos no Mês"
-          info={estatisticas?.recebimentosNoMes?.toString() || '0'}
+          info={(estatisticas?.recebimentosNoMes ?? 0).toString()}
           subtitulo="Recebimentos deste mês"
           icon={CheckCircle}
           carregandoInformacao={isLoading}
@@ -90,7 +92,7 @@ export default function RecebimentosPage() {
         />
         <IndicadorInfo
           titulo="Recebimentos na Semana"
-          info={estatisticas?.recebimentosNaSemana?.toString() || '0'}
+          info={(estatisticas?.recebimentosNaSemana ?? 0).toString()}
           subtitulo="Recebimentos desta semana"
           icon={XCircle}
           carregandoInformacao={isLoading}
@@ -98,7 +100,7 @@ export default function RecebimentosPage() {
         />
         <IndicadorInfo
           titulo="Média de Avaliação"
-          info={estatisticas?.mediaAvaliacao?.toFixed(1) || '0.0'}
+          info={(estatisticas?.mediaAvaliacao ?? 0).toFixed(1)}
           subtitulo="Avaliação geral"
           icon={Star}
           carregandoInformacao={isLoading}
