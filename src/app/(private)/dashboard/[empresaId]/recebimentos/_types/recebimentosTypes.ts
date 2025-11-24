@@ -16,6 +16,7 @@ export interface Recebimento {
   usuario: {
     nome: string
   }
+  avaliacaoEntrega: string | null
   AvaliacaoRecebimento: Array<{
     notaAvaliacao: number
     itemAvaliativo: {

@@ -42,20 +42,17 @@ export function TabelaRecebimentos({ recebimentos, isLoading }: TabelaRecebiment
       {recebimentosValidos.map((recebimento) => {
         // Tratativas de null/undefined com optional chaining e nullish coalescing
         const avaliacoes = recebimento?.AvaliacaoRecebimento ?? []
-        
+
         // Garantir que sempre trabalhamos com números válidos
         const notasValidas = avaliacoes
           .map(av => av?.notaAvaliacao)
           .filter((nota): nota is number => typeof nota === 'number' && !isNaN(nota))
-        
+
         const mediaAvaliacao = notasValidas.length > 0
           ? notasValidas.reduce((acc, nota) => acc + nota, 0) / notasValidas.length
           : 0
-        
-        const avaliacoesOrdenadas = [...notasValidas].sort((a, b) => a - b)
-        const avaliacaoMinima = avaliacoesOrdenadas[0] ?? 0
-        const avaliacaoMaxima = avaliacoesOrdenadas[avaliacoesOrdenadas.length - 1] ?? 0
-        
+
+
         return (
           <Card key={recebimento?.id ?? Math.random()} className="p-4 hover:shadow-md transition-shadow">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -75,42 +72,17 @@ export function TabelaRecebimentos({ recebimentos, isLoading }: TabelaRecebiment
                     <span className="font-medium">Itens avaliados:</span> {avaliacoes.length}
                   </div>
                 </div>
-                <div className="mt-2 text-sm text-muted-foreground">
-                  <span className="font-medium">Responsável:</span> {recebimento?.usuario?.nome ?? 'Não informado'}
+              </div>
+              <div className="flex gap-4 text-sm">
+                <div className="text-center">
+                  <p className="text-muted-foreground mb-1">Nota Final</p>
+                  <Badge variant="outline" className="bg-red-50 flex items-center gap-1">
+                    <Star className="h-3 w-3 fill-red-400 text-red-400" />
+                    {Number(recebimento.avaliacaoEntrega).toFixed(2)}
+                  </Badge>
                 </div>
-                {recebimento?.observacoes && (
-                  <p className="mt-2 text-sm text-muted-foreground italic">
-                    {recebimento.observacoes}
-                  </p>
-                )}
               </div>
 
-              {/* Avaliações */}
-              {avaliacoes.length > 0 && (
-                <div className="flex gap-4 text-sm">
-                  <div className="text-center">
-                    <p className="text-muted-foreground mb-1">Mínima</p>
-                    <Badge variant="outline" className="bg-red-50 flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-red-400 text-red-400" />
-                      {Number(avaliacaoMinima).toFixed(1)}
-                    </Badge>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-muted-foreground mb-1">Média</p>
-                    <Badge variant="outline" className="bg-yellow-50 flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      {Number(mediaAvaliacao).toFixed(1)}
-                    </Badge>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-muted-foreground mb-1">Máxima</p>
-                    <Badge variant="outline" className="bg-green-50 flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-green-400 text-green-400" />
-                      {Number(avaliacaoMaxima).toFixed(1)}
-                    </Badge>
-                  </div>
-                </div>
-              )}
             </div>
           </Card>
         )
