@@ -14,7 +14,7 @@ interface DadosDocumentoDialogProps {
 
 export function DadosDocumentoDialog({ documento }: DadosDocumentoDialogProps) {
   return (
-    <DialogContent>
+    <DialogContent className="md:max-w-screen-md" >
       <DialogHeader>
         <DialogTitle>{`Detalhes do documento ${documento.nome}`}</DialogTitle>
       </DialogHeader>
