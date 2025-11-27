@@ -80,7 +80,7 @@ export default function DocumentosPage() {
                     Novo documento
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="overflow-auto max-h-full max-w-5xl">
+                <DialogContent className="md:max-w-screen-md overflow-auto max-h-full">
                   <DialogHeader>
                     <DialogTitle>Criar novo documento</DialogTitle>
                     <DialogDescription>

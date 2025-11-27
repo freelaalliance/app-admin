@@ -80,15 +80,15 @@ export const ColunasDocumentosEmpresaAdmin: Array<ColumnDef<DocumentoType>> = [
     enableHiding: false,
     enableColumnFilter: true,
     cell: ({ row }) => {
-      const dataUltimaRevisao = new Date(
-        row.original.revisoes[row.original.revisoes.length - 1]?.revisadoEm || new Date()
-      )
+      const dataUltimaRevisao = row.original.revisoes[row.original.revisoes.length - 1] ? new Date(
+        row.original.revisoes[row.original.revisoes.length - 1]?.revisadoEm
+      ) : null
 
       return (
         <div className='w-auto capitalize'>
-          {format(dataUltimaRevisao, 'P', {
+          {dataUltimaRevisao ? format(dataUltimaRevisao, 'P', {
             locale: ptBR
-          })}
+          }) : '--'}
         </div>
       )
     },
