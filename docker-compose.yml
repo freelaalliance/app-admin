@@ -1,0 +1,70 @@
+# 🔒 DOCKER COMPOSE SEGURO - CVE-2025-55182 FIX
+
+services:
+  erp-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: erp-admin
+    
+    # 🔒 Executar como usuário não-root
+    user: "1001:1001"
+    
+    # 🔒 Filesystem read-only com tmpfs para escrita necessária
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,nodev,size=100m
+      - /app/.next/cache:noexec,nosuid,nodev,size=200m
+    
+    # 🔒 Security options
+    security_opt:
+      - no-new-privileges:true
+    
+    # 🔒 Drop todas as capabilities
+    cap_drop:
+      - ALL
+    
+    # 🔒 Limites de recursos
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    # Portas
+    ports:
+      - "3000:3000"
+    
+    # Variáveis de ambiente
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    
+    # Healthcheck
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => { process.exit(r.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
+    
+    # Política de restart
+    restart: unless-stopped
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Networks
+    networks:
+      - erp-network
+
+networks:
+  erp-network:
+    driver: bridge

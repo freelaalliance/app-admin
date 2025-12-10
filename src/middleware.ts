@@ -1,21 +1,56 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// 🔒 MIDDLEWARE DE SEGURANÇA - CVE-2025-55182
+// Padrões suspeitos para bloquear
+const SUSPICIOUS_PATTERNS = [
+  // Path Traversal
+  /\.\.\//g,
+  /\.\.%2[fF]/g,
+  /\.\.%5[cC]/g,
+
+  // XSS
+  /<script[^>]*>.*?<\/script>/gi,
+  /javascript:/gi,
+  /onerror=/gi,
+  /onload=/gi,
+
+  // Eval/Code Injection
+  /eval\s*\(/gi,
+  /Function\s*\(/gi,
+  /setTimeout\s*\(/gi,
+  /setInterval\s*\(/gi,
+
+  // SQL Injection básico
+  /'\s*(or|and)\s*'?\d+/gi,
+  /union\s+select/gi,
+];
+
 export function middleware(request: NextRequest) {
-  const sessionCookie = request.cookies.get('sessionUser')
-  const pathname = request.nextUrl.pathname
+  const sessionCookie = request.cookies.get('sessionUser');
+  const pathname = request.nextUrl.pathname;
+  const searchParams = request.nextUrl.search;
 
-  // Se não tem cookie de sessão e não está na página de login, redireciona para login
-  if (!sessionCookie?.value && pathname !== '/login') {
-    return NextResponse.redirect(new URL('/login', request.url))
+  // 🔒 Verificar padrões suspeitos na URL
+  const fullUrl = pathname + searchParams;
+  for (const pattern of SUSPICIOUS_PATTERNS) {
+    if (pattern.test(fullUrl)) {
+      console.warn(`🚨 Requisição suspeita bloqueada: ${fullUrl}`);
+      return new NextResponse('Forbidden', { status: 403 });
+    }
   }
 
-  // Se tem cookie de sessão e está na página de login, redireciona para dashboard
-  if (sessionCookie?.value && pathname === '/login') {
-    return NextResponse.redirect(new URL('/', request.url))
-  }
+  // Criar response base
+  const response = sessionCookie?.value && pathname === '/login'
+    ? NextResponse.redirect(new URL('/', request.url))
+    : !sessionCookie?.value && pathname !== '/login'
+      ? NextResponse.redirect(new URL('/login', request.url))
+      : NextResponse.next();
 
-  return NextResponse.next()
+  // 🔒 Adicionar X-Request-ID único para rastreamento
+  response.headers.set('X-Request-ID', crypto.randomUUID());
+
+  return response;
 }
 
 export const config = {
