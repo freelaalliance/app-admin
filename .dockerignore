@@ -5,7 +5,7 @@
 !.env.example
 *.local
 
-# Dependências
+# Dependências (serão reinstaladas no container)
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -13,7 +13,7 @@ yarn-error.log*
 pnpm-debug.log*
 .pnpm-store/
 
-# Build e cache
+# Build e cache (serão recriados)
 .next/
 out/
 build/
@@ -42,8 +42,9 @@ vitest.setup.ts
 README.md
 CHANGELOG.md
 LICENSE
-*.md
 docs/
+*.md
+!CVE-2025-55182-FIX.md
 
 # IDEs e editores
 .vscode/
@@ -70,6 +71,7 @@ docker-compose*.yml
 security-check.sh
 quick-fix.sh
 SECURITY_FIX_PROMPT.md
+RESUMO-CORRECAO.md
 
 # Logs
 logs/
@@ -78,11 +80,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Outros
+# Outros arquivos desnecessários
 .husky/
 .prettierrc*
 .eslintrc*
-tsconfig.json
-postcss.config.js
-tailwind.config.ts
-components.json
