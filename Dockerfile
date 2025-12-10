@@ -29,8 +29,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Desabilitar telemetria
-ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
@@ -63,10 +61,6 @@ RUN mkdir -p /tmp /app/.next/cache && \
 USER nextjs
 
 EXPOSE 3000
-
-# Healthcheck usando node para verificar endpoint
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => { process.exit(r.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
 
 # server.js is created by next build from the standalone output
 CMD ["node", "server.js"]
