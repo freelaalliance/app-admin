@@ -1,7 +1,6 @@
 # 🔒 .dockerignore - CVE-2025-55182 FIX
 
 # Arquivos de ambiente (CRÍTICO)
-.env*
 !.env.example
 *.local
 
