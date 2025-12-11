@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 
+// Permitir domínios externos no CSP
+const allowedApiDomains = process.env.NEXT_PUBLIC_API_URL 
+  ? new URL(process.env.NEXT_PUBLIC_API_URL).origin 
+  : 'https://api.alliancequality.net';
+
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -61,6 +66,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https:",
               "font-src 'self' data:",
+              `connect-src 'self' ${allowedApiDomains}`,
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
