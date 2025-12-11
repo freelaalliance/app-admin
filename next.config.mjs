@@ -21,10 +21,8 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '15mb',
     },
-    // Habilitar Subresource Integrity (SRI)
-    sri: {
-      algorithm: 'sha256',
-    },
+    // SRI não é compatível com Turbopack - removido para permitir uso do Turbopack
+    // Para usar SRI, remova --turbopack do script dev e use Webpack
   },
   output: "standalone",
   
