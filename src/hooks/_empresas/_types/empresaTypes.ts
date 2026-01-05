@@ -48,6 +48,7 @@ const empresaFormSchema = z.object({
     required_error: 'Necessário informar o estado da cidade',
   }),
   complemento: z.string().optional(),
+  idPessoa: z.string().uuid(),
 })
 
 export type EmpresaFormType = z.infer<typeof empresaFormSchema>

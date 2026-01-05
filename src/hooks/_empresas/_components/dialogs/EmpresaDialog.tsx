@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -42,6 +42,7 @@ export function EmpresaDialog({
     bairro: '',
     cidade: '',
     estado: '',
+    idPessoa: '',
   })
 
   const [cnpjError, setCnpjError] = useState<string>('')
@@ -59,6 +60,7 @@ export function EmpresaDialog({
         bairro: empresa.bairro || '',
         cidade: empresa.cidade || '',
         estado: empresa.estado || '',
+        idPessoa: empresa.idPessoa || '',
       })
     } else {
       setFormData({
@@ -71,6 +73,7 @@ export function EmpresaDialog({
         bairro: '',
         cidade: '',
         estado: '',
+        idPessoa: '',
       })
     }
     setCnpjError('')
