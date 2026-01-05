@@ -49,6 +49,7 @@ const empresaFormSchema = z.object({
   }),
   complemento: z.string().optional(),
   idPessoa: z.string().uuid(),
+  idEndereco: z.string().uuid(),
 })
 
 export type EmpresaFormType = z.infer<typeof empresaFormSchema>

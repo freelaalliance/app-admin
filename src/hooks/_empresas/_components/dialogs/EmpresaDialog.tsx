@@ -43,6 +43,7 @@ export function EmpresaDialog({
     cidade: '',
     estado: '',
     idPessoa: '',
+    idEndereco: '',
   })
 
   const [cnpjError, setCnpjError] = useState<string>('')
@@ -61,6 +62,7 @@ export function EmpresaDialog({
         cidade: empresa.cidade || '',
         estado: empresa.estado || '',
         idPessoa: empresa.idPessoa || '',
+        idEndereco: empresa.idEndereco || '',
       })
     } else {
       setFormData({
@@ -74,6 +76,7 @@ export function EmpresaDialog({
         cidade: '',
         estado: '',
         idPessoa: '',
+        idEndereco: '',
       })
     }
     setCnpjError('')
