@@ -35,7 +35,7 @@ export function EmpresasSwitcher({ empresas, empresaAtual, empresaSelecionada, o
             <SidebarMenuButton
               size={"lg"}
               variant={"outline"}
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                 <Building2 className="size-4" />
@@ -81,7 +81,7 @@ export function EmpresasSwitcher({ empresas, empresaAtual, empresaSelecionada, o
             <DropdownMenuSeparator />
 
             {/* Lista de empresas filtradas */}
-            <div className="max-h-[300px] overflow-y-auto">
+            <div className="max-h-75 overflow-y-auto">
               {empresasFiltradas.length > 0 ? (
                 empresasFiltradas.map((empresa) => (
                   <DropdownMenuItem
