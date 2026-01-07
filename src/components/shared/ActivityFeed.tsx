@@ -56,7 +56,7 @@ export function ActivityFeed({
               <div key={activity.id}>
                 <div className="flex gap-4">
                   {Icon && (
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                       <div className="rounded-full bg-muted p-2">
                         <Icon className="h-4 w-4 text-muted-foreground" />
                       </div>

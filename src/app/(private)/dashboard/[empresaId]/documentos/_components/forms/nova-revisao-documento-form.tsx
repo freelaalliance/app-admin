@@ -69,6 +69,7 @@ export function NovaRevisaoDocumentoForm({ idDocumento }: NovaRevisaoDocumentoFo
     if (arquivoKeyCompleta) {
       await deleteFile(arquivoKeyCompleta)
     }
+    setArquivoKeyCompleta(null)
     formNovaRevisaoDocumento.reset()
   }
 

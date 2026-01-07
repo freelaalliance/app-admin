@@ -129,6 +129,7 @@ export function NovoDocumentoForm({
 
   const cancelar = async () => {
     if(arquivoSelecionado) await deleteFile(formNovoDocumento.getValues('arquivo'))
+    selecionarArquivo(false)
     formNovoDocumento.reset()
   }
 
@@ -372,7 +373,7 @@ export function NovoDocumentoForm({
                 )}
               />
             </div>
-            <div className="min-w-full max-w-[971px] mx-auto p-4 border rounded-lg shadow-sm bg-white">
+            <div className="min-w-full max-w-242.75 mx-auto p-4 border rounded-lg shadow-sm bg-white">
               <h2 className="text-xl font-semibold mb-4">
                 Usuários que terá acesso ao documento
               </h2>
@@ -390,7 +391,7 @@ export function NovoDocumentoForm({
                         className="flex items-center p-2 rounded-md hover:bg-muted group relative border shrink-0"
                       >
                         <div className="flex items-center gap-2">
-                          <div className="max-w-[120px]">
+                          <div className="max-w-30">
                             <p className="font-medium text-sm truncate">
                               {usuario.nome}
                             </p>
