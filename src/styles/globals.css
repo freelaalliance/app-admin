@@ -29,7 +29,7 @@
   --destructive: oklch(0.55 0.22 15); /* Vermelho para erro, mais escuro que o primário */
   --destructive-foreground: oklch(0.98 0.01 15);
   --border: oklch(0.88 0.01 106); /* Bordas suaves */
-  --input: oklch(0.96 0.005 106); /* Inputs com fundo levemente cinza */
+  --input: oklch(0.8267 0 334.59); /* Inputs com fundo levemente cinza */
   --ring: oklch(0.484 0.194 22.043); /* Anel de foco no vermelho Alliance */
   
   /* Cores para gráficos com harmonia Alliance */
