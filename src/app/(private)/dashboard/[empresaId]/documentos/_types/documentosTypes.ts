@@ -52,6 +52,11 @@ export type RevisoesDocumentoType = {
   usuario: string
 }
 
+export type PastaDocumentoType = {
+  id: string
+  nome: string
+}
+
 export type DocumentoType = {
   id: string
   nome: string
@@ -65,6 +70,7 @@ export type DocumentoType = {
   empresaId: string
   categoriaDocumentoNome: string
   revisoes: RevisoesDocumentoType[]
+  pasta: PastaDocumentoType | null
 }
 
 export type CategoriaDocumentoType = {

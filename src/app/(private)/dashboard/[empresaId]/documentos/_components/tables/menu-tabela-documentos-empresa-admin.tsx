@@ -9,7 +9,6 @@ import { DadosDocumentoDialog } from '../dialogs/documento-dialog';
 import { DocumentoType } from '../../_types/documentosTypes';
 import { downloadFile } from '../../_actions/upload-actions';
 import { toast } from 'sonner';
-//import { RemoverDocumentoAlertDialog } from '@/app/modulo/administrativo/modulos/documentos/_components/dialogs/remover-documento-empresa-dialog';
 
 interface MenuTabelaDocumentosEmpresaProps {
   documento: DocumentoType
@@ -45,7 +44,7 @@ export function MenuTabelaDocumentosEmpresaAdmin({ documento }: MenuTabelaDocume
           <span className="sr-only">Abrir menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
+      <DropdownMenuContent align="end" className="w-40">
         <DropdownMenuItem onClick={() => handleDownload(
           documento.revisoes[0].arquivoUrl
         )}>

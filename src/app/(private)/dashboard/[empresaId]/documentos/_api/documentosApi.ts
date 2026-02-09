@@ -1,6 +1,6 @@
 // API calls para o módulo de Documentos
 import { axiosInstance } from '@/lib/axios'
-import type { DocumentoType, CategoriaDocumentoType, ResponseType, Categoria } from '../_types/documentosTypes'
+import type { DocumentoType, CategoriaDocumentoType, ResponseType, Categoria, PastaDocumentoType } from '../_types/documentosTypes'
 import { CategoriaDocumentosFormType } from '../_components/forms/cadastro-categoria-documento'
 import { NovoDocumentoFormType } from '../_components/forms/novo-documento-form'
 import { NovaRevisaoDocumentoFormType } from '../_components/forms/nova-revisao-documento-form'
@@ -112,6 +112,46 @@ export const documentosApi = {
         dataRevisao: revisaoDocumentoForm.dataRevisao,
         numeroRevisao: revisaoDocumentoForm.numeroRevisao,
       })
+      .then(({ data }) => data)
+      .catch(() => null)
+  },
+
+  // ========================
+  // Pastas de Documentos
+  // ========================
+
+  criarPastaDocumento: async (nome: string): Promise<{ status: boolean; msg: string; data?: { id: string; nome: string; empresaId: string } } | null> => {
+    return await axiosInstance
+      .post<{ status: boolean; msg: string; data?: { id: string; nome: string; empresaId: string } }>(
+        'admin/documentos/pastas', { nome }
+      )
+      .then(({ data }) => data)
+      .catch(() => null)
+  },
+
+  listarPastasPorEmpresa: async (empresaId: string): Promise<Array<PastaDocumentoType & { quantidadeDocumentos?: number }>> => {
+    try {
+      const { data } = await axiosInstance.get<Array<PastaDocumentoType & { quantidadeDocumentos?: number }>>(
+        `admin/documentos/pastas/empresa/${empresaId}`
+      )
+      return Array.isArray(data) ? data : []
+    } catch {
+      return []
+    }
+  },
+
+  atualizarPastaDocumento: async (id: string, nome: string): Promise<{ status: boolean; msg: string; data?: { id: string; nome: string; empresaId: string } } | null> => {
+    return await axiosInstance
+      .put<{ status: boolean; msg: string; data?: { id: string; nome: string; empresaId: string } }>(
+        `admin/documentos/pastas/${id}`, { nome }
+      )
+      .then(({ data }) => data)
+      .catch(() => null)
+  },
+
+  excluirPastaDocumento: async (id: string): Promise<ResponseType | null> => {
+    return await axiosInstance
+      .delete<ResponseType>(`admin/documentos/pastas/${id}`)
       .then(({ data }) => data)
       .catch(() => null)
   },

@@ -1,10 +1,10 @@
 'use client'
 
-import { useParams, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { FileText, Folder } from 'lucide-react'
 import { IndicadorInfo } from '@/components/shared/IndicadorInfo'
-import { useDocumentos, useCategorias, useUsuarios } from './_hooks/useDocumentosData'
+import { useDocumentos, useCategorias, useUsuarios, usePastasDocumentos } from './_hooks/useDocumentosData'
 import { TabelaDocumentos } from './_components/tables/DocumentosTable'
 import { ColunasDocumentosEmpresaAdmin } from './_components/tables/colunas-tabela-documentos-empresa-admin'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -19,6 +19,9 @@ export default function DocumentosPage() {
   const { data: documentos, isFetching: isLoadingDocs } = useDocumentos(empresaId)
   const { data: categorias, isFetching: isLoadingCategorias } = useCategorias(empresaId)
   const { data: listaUsuarios, isFetching: carregandoUsuariosEmpresa } = useUsuarios(empresaId)
+  const { data: listaPastas, isLoading: carregandoPastas } = usePastasDocumentos(empresaId)
+
+  console.log('Pastas de documentos:', listaPastas)
 
   // Calcular estatísticas
   const stats = {
@@ -58,7 +61,7 @@ export default function DocumentosPage() {
 
         <Tabs defaultValue="documentos">
           <TabsList >
-            <TabsTrigger  value="categorias">Categorias de documentos</TabsTrigger>
+            <TabsTrigger value="categorias">Categorias de documentos</TabsTrigger>
             <TabsTrigger value="documentos">Documentos</TabsTrigger>
           </TabsList>
 
@@ -80,7 +83,7 @@ export default function DocumentosPage() {
                     Novo documento
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="md:max-w-screen-md overflow-auto max-h-full">
+                <DialogContent className="md:max-w-3xl overflow-auto max-h-full">
                   <DialogHeader>
                     <DialogTitle>Criar novo documento</DialogTitle>
                     <DialogDescription>
@@ -90,6 +93,7 @@ export default function DocumentosPage() {
                   <NovoDocumentoForm
                     listaCategoriasDocumentos={!isLoadingCategorias ? (categorias ?? []) : []}
                     listaUsuarios={listaUsuarios ?? []}
+                    listaPastasDocumentos={carregandoPastas ? [] : (listaPastas ?? [])}
                     empresaId={empresaId ?? ''}
                   />
                 </DialogContent>

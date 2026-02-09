@@ -41,6 +41,20 @@ export const ColunasDocumentosEmpresaAdmin: Array<ColumnDef<DocumentoType>> = [
     },
   },
   {
+    id: 'pastaNome',
+    accessorFn: (row) => row.pasta?.nome ?? '',
+    header: 'Pasta',
+    enableHiding: false,
+    enableColumnFilter: true,
+    cell: ({ row }) => {
+      const nomePasta = row.original.pasta?.nome
+      return <span className="line-clamp-1">{nomePasta ?? '—'}</span>
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+  },
+  {
     accessorKey: 'nome',
     header: 'Cod. Documento',
     enableHiding: false,

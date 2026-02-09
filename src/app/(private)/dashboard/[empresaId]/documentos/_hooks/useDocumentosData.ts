@@ -10,6 +10,7 @@ const documentosKeys = {
   list: (empresaId: string) => ['documentos', 'list', empresaId] as const,
   categorias: (empresaId: string) => ['documentos', 'categorias', empresaId] as const,
   usuarios: (empresaId: string) => ['documentos', 'usuarios', empresaId] as const,
+  pastas: (empresaId: string) => ['pastasDocumentos', empresaId] as const,
 }
 
 // Hook para lista de documentos
@@ -167,6 +168,85 @@ export function useSetRevisaoDocumento(empresaId: string) {
         queryKey: documentosKeys.list(empresaId),
       })
       toast.success(data.msg)
+    },
+  })
+}
+
+// ========================
+// Hooks de Pastas de Documentos
+// ========================
+
+// Hook para listar pastas por empresa
+export function usePastasDocumentos(empresaId: string) {
+  return useQuery({
+    queryKey: documentosKeys.pastas(empresaId),
+    queryFn: () => documentosApi.listarPastasPorEmpresa(empresaId),
+    enabled: !!empresaId,
+  })
+}
+
+// Hook para criar pasta
+export function useCriarPastaDocumento(empresaId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (nome: string) => documentosApi.criarPastaDocumento(nome),
+    onError: (error: Error) => {
+      toast.error('Erro ao criar pasta', {
+        description: error.message,
+      })
+    },
+    onSuccess: (data) => {
+      if (data?.status) {
+        toast.success(data.msg)
+        queryClient.invalidateQueries({ queryKey: documentosKeys.pastas(empresaId) })
+      } else {
+        toast.warning(data?.msg ?? 'Erro ao criar pasta')
+      }
+    },
+  })
+}
+
+// Hook para atualizar pasta
+export function useAtualizarPastaDocumento(empresaId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, nome }: { id: string; nome: string }) => documentosApi.atualizarPastaDocumento(id, nome),
+    onError: (error: Error) => {
+      toast.error('Erro ao atualizar pasta', {
+        description: error.message,
+      })
+    },
+    onSuccess: (data) => {
+      if (data?.status) {
+        toast.success(data.msg)
+        queryClient.invalidateQueries({ queryKey: documentosKeys.pastas(empresaId) })
+      } else {
+        toast.warning(data?.msg ?? 'Erro ao atualizar pasta')
+      }
+    },
+  })
+}
+
+// Hook para excluir pasta
+export function useExcluirPastaDocumento(empresaId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: string) => documentosApi.excluirPastaDocumento(id),
+    onError: (error: Error) => {
+      toast.error('Erro ao excluir pasta', {
+        description: error.message,
+      })
+    },
+    onSuccess: (data) => {
+      if (data?.status) {
+        toast.success(data.msg)
+        queryClient.invalidateQueries({ queryKey: documentosKeys.pastas(empresaId) })
+      } else {
+        toast.warning(data?.msg ?? 'Erro ao excluir pasta')
+      }
     },
   })
 }
