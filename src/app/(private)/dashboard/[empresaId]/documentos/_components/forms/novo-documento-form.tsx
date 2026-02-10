@@ -27,8 +27,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery } from '@tanstack/react-query'
-import { addYears, format } from 'date-fns'
+import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { CalendarIcon, FolderPlus, Pencil, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -40,7 +39,6 @@ import UploadForm from '@/components/ui/upload-documentos'
 import { UsuarioType } from '@/hooks/_empresas/_types/usuarioTypes'
 import { Categoria, PastaDocumentoType } from '../../_types/documentosTypes'
 import { useSetDocumento } from '../../_hooks/useDocumentosData'
-import { documentosApi } from '../../_api/documentosApi'
 import { PastaDocumentoDialog } from '../dialogs/pasta-documento-dialog'
 
 const schemaNovoDocumentoForm = z.object({
@@ -68,7 +66,7 @@ const schemaNovoDocumentoForm = z.object({
   disposicao: z.string({
     required_error: 'Campo de disposição é obrigatório',
   }),
-  retencao: z.coerce.date(),
+  retencao: z.coerce.date().optional(),
   uso: z.string({
     required_error: 'Campo uso é obrigatório',
   }),
