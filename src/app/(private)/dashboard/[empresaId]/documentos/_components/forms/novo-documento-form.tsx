@@ -570,7 +570,7 @@ export function NovoDocumentoForm({
         aberto={dialogPastaAberto}
         onFechar={() => { setDialogPastaAberto(false); setPastaParaEditar(null) }}
         pasta={pastaParaEditar}
-        empresaId={empresaId}
+        empresaId={empresaId ?? ''}
       />
     </Form>
   )

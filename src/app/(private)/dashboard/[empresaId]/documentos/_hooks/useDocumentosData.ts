@@ -190,7 +190,7 @@ export function useCriarPastaDocumento(empresaId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (nome: string) => documentosApi.criarPastaDocumento(nome),
+    mutationFn: (nome: string) => documentosApi.criarPastaDocumento(nome, empresaId ?? ''),
     onError: (error: Error) => {
       toast.error('Erro ao criar pasta', {
         description: error.message,

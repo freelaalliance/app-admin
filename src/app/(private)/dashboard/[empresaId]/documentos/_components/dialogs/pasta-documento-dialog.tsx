@@ -20,12 +20,10 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 import { z } from 'zod'
-import { documentosApi } from '../../_api/documentosApi'
+import { useAtualizarPastaDocumento, useCriarPastaDocumento } from '../../_hooks/useDocumentosData'
 
 const schemaPastaForm = z.object({
   nome: z.string({ required_error: 'Nome da pasta é obrigatório' })
@@ -38,11 +36,10 @@ interface PastaDocumentoDialogProps {
   aberto: boolean
   onFechar: () => void
   pasta?: { id: string; nome: string } | null
-  empresaId?: string
+  empresaId: string
 }
 
 export function PastaDocumentoDialog({ aberto, onFechar, pasta, empresaId }: PastaDocumentoDialogProps) {
-  const queryClient = useQueryClient()
   const modoEdicao = !!pasta
 
   const formPasta = useForm<PastaFormType>({
@@ -56,32 +53,19 @@ export function PastaDocumentoDialog({ aberto, onFechar, pasta, empresaId }: Pas
     }
   }, [aberto, pasta, formPasta])
 
-  const { mutateAsync: salvarPasta, isPending } = useMutation({
-    mutationFn: async (data: PastaFormType) => {
-      if (modoEdicao && pasta) {
-        return documentosApi.atualizarPastaDocumento(pasta.id, data.nome)
-      }
-      return documentosApi.criarPastaDocumento(data.nome)
-    },
-    onError: (error) => {
-      toast.error(modoEdicao ? 'Erro ao atualizar pasta' : 'Erro ao criar pasta', {
-        description: error.message,
-      })
-    },
-    onSuccess: (data) => {
-      if (data?.status) {
-        toast.success(data.msg)
-        queryClient.invalidateQueries({ queryKey: empresaId ? ['pastasDocumentos', empresaId] : ['pastasDocumentos'] })
-        formPasta.reset()
-        onFechar()
-      } else {
-        toast.warning(data?.msg ?? 'Erro ao salvar pasta')
-      }
-    },
-  })
+  const { mutateAsync: criarPasta, isPending: isCriando } = useCriarPastaDocumento(empresaId)
+  const { mutateAsync: atualizarPasta, isPending: isAtualizando } = useAtualizarPastaDocumento(empresaId)
+
+  const isPending = isCriando || isAtualizando
 
   const handleSubmit = async (data: PastaFormType) => {
-    await salvarPasta(data)
+    if (modoEdicao && pasta) {
+      await atualizarPasta({ id: pasta.id, nome: data.nome })
+    } else {
+      await criarPasta(data.nome)
+    }
+    formPasta.reset()
+    onFechar()
   }
 
   return (

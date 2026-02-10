@@ -120,10 +120,10 @@ export const documentosApi = {
   // Pastas de Documentos
   // ========================
 
-  criarPastaDocumento: async (nome: string): Promise<{ status: boolean; msg: string; data?: { id: string; nome: string; empresaId: string } } | null> => {
+  criarPastaDocumento: async (nome: string, empresaId: string): Promise<{ status: boolean; msg: string; data?: { id: string; nome: string; empresaId: string } } | null> => {
     return await axiosInstance
       .post<{ status: boolean; msg: string; data?: { id: string; nome: string; empresaId: string } }>(
-        'admin/documentos/pastas', { nome }
+        `admin/documentos/pastas/empresa/${empresaId}`, { nome }
       )
       .then(({ data }) => data)
       .catch(() => null)
